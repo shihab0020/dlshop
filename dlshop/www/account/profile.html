@@ -1,0 +1,55 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'بياناتي الشخصية' if _lang == 'ar' else 'My Profile' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container-xl py-4" style="max-width: 640px;">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="/account/{{ _lang }}" class="text-muted"><i class="fa fa-arrow-{{ 'right' if _lang == 'ar' else 'left' }}"></i></a>
+    <h1 class="mb-0">{{ 'بياناتي الشخصية' if _lang == 'ar' else 'My Profile' }}</h1>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form id="dl-profile-form">
+        <div class="mb-3">
+          <label class="form-label">{{ 'الاسم الكامل *' if _lang == 'ar' else 'Full Name *' }}</label>
+          <input type="text" id="prof-name" class="form-control" value="{{ user_full_name | e }}" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">{{ 'البريد الإلكتروني' if _lang == 'ar' else 'Email' }}</label>
+          <input type="email" class="form-control" value="{{ user_email | e }}" readonly disabled />
+          <div class="form-text">{{ 'لا يمكن تغيير البريد الإلكتروني' if _lang == 'ar' else 'Email cannot be changed' }}</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">{{ 'رقم الجوال' if _lang == 'ar' else 'Mobile Number' }}</label>
+          <input type="tel" id="prof-mobile" class="form-control" value="{{ user_mobile | e }}" />
+        </div>
+        <button type="submit" class="btn btn-primary">{{ 'حفظ التغييرات' if _lang == 'ar' else 'Save Changes' }}</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <h6 class="card-title">{{ 'تغيير كلمة المرور' if _lang == 'ar' else 'Change Password' }}</h6>
+      <a href="/update-password" class="btn btn-outline-secondary btn-sm">{{ 'تغيير كلمة المرور' if _lang == 'ar' else 'Change Password' }}</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+document.getElementById('dl-profile-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  frappe.call({
+    method: 'dlshop.api.account.update_profile',
+    args: { full_name: document.getElementById('prof-name').value, mobile_no: document.getElementById('prof-mobile').value },
+    callback: function(r) {
+      if (r.message?.success) dlshopToast('{{ "تم حفظ البيانات" if _lang=="ar" else "Profile updated" }}', 'success');
+    }
+  });
+});
+</script>
+{% endblock %}

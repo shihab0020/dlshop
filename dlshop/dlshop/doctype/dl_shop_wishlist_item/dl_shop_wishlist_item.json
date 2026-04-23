@@ -1,0 +1,25 @@
+{
+ "actions": [],
+ "creation": "2024-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["item_route", "item_code", "added_on"],
+ "fields": [
+  {"fieldname": "item_route", "fieldtype": "Link", "label": "Product", "options": "DL Shop Item", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "item_code", "fieldtype": "Link", "label": "Item Code", "options": "Item", "in_list_view": 1},
+  {"fieldname": "added_on", "fieldtype": "Datetime", "label": "Added On", "read_only": 1, "in_list_view": 1}
+ ],
+ "modified": "2024-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dlshop",
+ "name": "DL Shop Wishlist Item",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
+  {"role": "Customer", "read": 1, "write": 1, "create": 1, "delete": 1},
+  {"role": "All", "read": 1, "write": 1, "create": 1, "delete": 1}
+ ],
+ "sort_field": "added_on",
+ "sort_order": "DESC"
+}

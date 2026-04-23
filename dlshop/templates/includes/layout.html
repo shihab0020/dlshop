@@ -1,0 +1,262 @@
+{% set _settings = get_settings() %}
+{% set _lang = get_current_lang() %}
+{% set _rtl = is_rtl(_lang) %}
+{% set _cart_count = get_cart_count() %}
+{% set _categories = get_categories(_lang) %}
+{% set _nav_items = get_nav_items(_lang) %}
+{% extends "templates/base.html" %}
+
+{# Override head block: load Bootstrap 5 instead of Frappe's Bootstrap 4 #}
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+<link rel="stylesheet" href="/assets/dlshop/css/dlshop.css?v=14" />
+<style>
+  :root {
+    --dl-primary: {{ _settings.primary_color or '#2E3092' }};
+    --dl-secondary: {{ _settings.secondary_color or '#00AEEF' }};
+    --dl-accent: {{ _settings.accent_color or '#e53935' }};
+    --dl-navbar-bg: {{ _settings.navbar_bg_color or '#ffffff' }};
+    --dl-flash-bg: {{ _settings.flash_deals_bg_color or '#2E3092' }};
+    --dl-flash-accent: {{ _settings.flash_deals_text_color or '#00AEEF' }};
+    --dl-footer-bg: {{ _settings.footer_bg_color or '#f0f0f0' }};
+    --dl-footer-text: {{ _settings.footer_text_color or '#3d3d3d' }};
+  }
+</style>
+{% if _settings.custom_css %}<style>{{ _settings.custom_css }}</style>{% endif %}
+{% if _settings.google_analytics_id %}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ _settings.google_analytics_id }}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ _settings.google_analytics_id }}');</script>
+{% endif %}
+{% if _settings.google_tag_manager_id %}
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ _settings.google_tag_manager_id }}');</script>
+{% endif %}
+{% if _settings.custom_head_html %}{{ _settings.custom_head_html }}{% endif %}
+{% endblock %}
+
+{% block navbar %}
+{# ============================================================ HEADER #}
+{% if _settings.google_tag_manager_id %}
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ _settings.google_tag_manager_id }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+{% endif %}
+<header class="dl-header shadow-sm sticky-top" style="background:var(--dl-navbar-bg);">
+  <nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+    <div class="container-xl">
+
+      {# Logo #}
+      <a class="navbar-brand dl-logo" href="/shop/{{ _lang }}">
+        {% if _settings.logo %}
+          <img src="{{ _settings.logo }}" alt="{{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}" height="40" />
+        {% else %}
+          <span class="dl-logo-text">{{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}</span>
+        {% endif %}
+      </a>
+
+      {# Mobile toggle #}
+      <div class="d-flex align-items-center d-lg-none gap-2">
+        <a href="/cart/{{ _lang }}" class="dl-cart-icon position-relative">
+          <i class="fa fa-shopping-bag fa-lg"></i>
+          <span class="dl-cart-badge" id="cart-badge-mobile">{{ _cart_count if _cart_count > 0 else '' }}</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#dlNavbar" aria-expanded="false">
+          <i class="fa fa-bars fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="dlNavbar">
+        {# Search bar #}
+        <form class="dl-search-form mx-auto" action="/search/{{ _lang }}" method="get" role="search">
+          <div class="input-group">
+            <input type="search" name="q" class="form-control dl-search-input" placeholder="{{ 'ابحث عن منتجات...' if _lang == 'ar' else 'Search products...' }}" value="{{ frappe.form_dict.q or '' }}" autocomplete="off" />
+            <button type="submit" class="btn btn-primary dl-search-btn"><i class="fa fa-search"></i></button>
+          </div>
+          <div id="dl-search-suggestions" class="dl-search-suggestions d-none"></div>
+        </form>
+
+        {# Desktop nav links #}
+        <ul class="navbar-nav {% if _rtl %}me-auto{% else %}ms-2{% endif %}">
+          {% for nav in _nav_items %}
+          {% if nav.children %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="{{ nav.url }}" data-bs-toggle="dropdown">{{ nav.label }}</a>
+            <ul class="dropdown-menu">
+              {% for child in nav.children %}
+              <li><a class="dropdown-item" href="{{ child.url }}" {% if child.open_in_new_tab %}target="_blank"{% endif %}>{{ child.label }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ nav.url }}" {% if nav.open_in_new_tab %}target="_blank"{% endif %}>{{ nav.label }}</a>
+          </li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+
+        {# Right side icons #}
+        <div class="dl-header-actions d-flex align-items-center gap-3 {% if _rtl %}me-auto ms-3{% else %}ms-auto me-0{% endif %}">
+
+          {# Language Switch #}
+          <div class="dl-lang-switch">
+            {% if _lang == 'ar' %}
+            <a href="{{ switch_lang_url(frappe.request.path if frappe.request else '/') }}" class="btn btn-outline-secondary btn-sm dl-lang-btn">EN</a>
+            {% else %}
+            <a href="{{ switch_lang_url(frappe.request.path if frappe.request else '/') }}" class="btn btn-outline-secondary btn-sm dl-lang-btn">عربي</a>
+            {% endif %}
+          </div>
+
+          {# Wishlist (logged in only) #}
+          {% if frappe.session.user != 'Guest' %}
+          <a href="/account/wishlist/{{ _lang }}" class="dl-icon-btn">
+            <i class="fa fa-heart fa-lg"></i>
+          </a>
+          {% endif %}
+
+          {# Account #}
+          {% if frappe.session.user == 'Guest' %}
+          <div class="d-flex gap-2">
+            <a href="/auth/{{ _lang }}?redirect-to=/account/{{ _lang }}" class="btn btn-outline-primary btn-sm">
+              <i class="fa fa-sign-in-alt me-1"></i>{{ 'دخول' if _lang == 'ar' else 'Login' }}
+            </a>
+            <a href="/auth/{{ _lang }}?tab=register" class="btn btn-primary btn-sm">
+              <i class="fa fa-user-plus me-1"></i>{{ 'تسجيل' if _lang == 'ar' else 'Register' }}
+            </a>
+          </div>
+          {% else %}
+          <div class="dropdown">
+            <a class="dl-icon-btn dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              <i class="fa fa-user-circle fa-lg"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/account/{{ _lang }}"><i class="fa fa-tachometer-alt me-2"></i>{{ 'لوحة التحكم' if _lang == 'ar' else 'Dashboard' }}</a></li>
+              <li><a class="dropdown-item" href="/account/orders/{{ _lang }}"><i class="fa fa-box me-2"></i>{{ 'طلباتي' if _lang == 'ar' else 'My Orders' }}</a></li>
+              <li><a class="dropdown-item" href="/account/wishlist/{{ _lang }}"><i class="fa fa-heart me-2"></i>{{ 'قائمة الرغبات' if _lang == 'ar' else 'Wishlist' }}</a></li>
+              <li><a class="dropdown-item" href="/account/addresses/{{ _lang }}"><i class="fa fa-map-marker-alt me-2"></i>{{ 'عناويني' if _lang == 'ar' else 'My Addresses' }}</a></li>
+              <li><hr class="dropdown-divider" /></li>
+              <li><a class="dropdown-item text-danger" href="/api/method/frappe.client.logout" id="dl-logout"><i class="fa fa-sign-out-alt me-2"></i>{{ 'تسجيل الخروج' if _lang == 'ar' else 'Logout' }}</a></li>
+            </ul>
+          </div>
+          {% endif %}
+
+          {# Cart #}
+          <a href="/cart/{{ _lang }}" class="dl-cart-icon position-relative d-none d-lg-inline-flex">
+            <i class="fa fa-shopping-bag fa-lg"></i>
+            <span class="dl-cart-badge" id="cart-badge-desktop">{{ _cart_count if _cart_count > 0 else '' }}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  {# Category bar #}
+  {% if _categories %}
+  <div class="dl-category-bar d-none d-lg-block border-top">
+    <div class="container-xl">
+      <ul class="dl-cat-nav list-unstyled d-flex gap-3 mb-0 py-1">
+        <li><a href="/shop/{{ _lang }}" class="dl-cat-link">{{ 'كل المنتجات' if _lang == 'ar' else 'All Products' }}</a></li>
+        {% for cat in _categories %}
+        <li class="{% if cat.children %}dropdown{% endif %}">
+          <a href="/shop/{{ _lang }}/{{ cat.route }}" class="dl-cat-link {% if cat.children %}dropdown-toggle{% endif %}" {% if cat.children %}data-bs-toggle="dropdown"{% endif %}>{{ cat.name_display }}</a>
+          {% if cat.children %}
+          <ul class="dropdown-menu">
+            {% for child in cat.children %}
+            <li><a class="dropdown-item" href="/shop/{{ _lang }}/{{ child.route }}">{{ child.name_display }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+</header>
+{% endblock %}
+
+{% block content %}
+<main id="dl-main" class="dl-main">
+  {% if _settings.maintenance_mode %}
+  <div class="container py-5 text-center">
+    <i class="fa fa-wrench fa-3x text-muted mb-3"></i>
+    <h2>{{ _settings.maintenance_message_ar if _lang == 'ar' else _settings.maintenance_message_en or ('الموقع تحت الصيانة' if _lang == 'ar' else 'Under Maintenance') }}</h2>
+  </div>
+  {% else %}
+  {% block page_content %}{% endblock %}
+  {% endif %}
+</main>
+{% endblock %}
+
+{% block footer %}
+{% set _footer_sections = get_footer_sections(_lang) %}
+<footer class="dl-footer">
+  <div class="dl-footer-top py-5">
+    <div class="container-xl">
+      <div class="row g-4">
+        <div class="col-12 col-md-4">
+          {% if _settings.logo %}
+          <img src="{{ _settings.logo }}" alt="" height="40" class="mb-3" />
+          {% else %}
+          <h5 class="fw-bold mb-3">{{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}</h5>
+          {% endif %}
+          <p class="text-muted small">{{ _settings.site_description_ar if _lang == 'ar' else _settings.site_description_en }}</p>
+          <div class="dl-social-links d-flex gap-3 mt-3">
+            {% if _settings.instagram_url %}<a href="{{ _settings.instagram_url }}" target="_blank"><i class="fab fa-instagram fa-lg"></i></a>{% endif %}
+            {% if _settings.facebook_url %}<a href="{{ _settings.facebook_url }}" target="_blank"><i class="fab fa-facebook fa-lg"></i></a>{% endif %}
+            {% if _settings.twitter_url %}<a href="{{ _settings.twitter_url }}" target="_blank"><i class="fab fa-x-twitter fa-lg"></i></a>{% endif %}
+            {% if _settings.tiktok_url %}<a href="{{ _settings.tiktok_url }}" target="_blank"><i class="fab fa-tiktok fa-lg"></i></a>{% endif %}
+            {% if _settings.youtube_url %}<a href="{{ _settings.youtube_url }}" target="_blank"><i class="fab fa-youtube fa-lg"></i></a>{% endif %}
+            {% if _settings.whatsapp_number %}<a href="https://wa.me/{{ _settings.whatsapp_number }}" target="_blank"><i class="fab fa-whatsapp fa-lg"></i></a>{% endif %}
+          </div>
+        </div>
+        {% for sec in _footer_sections %}
+        <div class="col-6 col-md-2">
+          <h6 class="fw-semibold mb-3 dl-footer-heading">{{ sec.title }}</h6>
+          <ul class="list-unstyled dl-footer-links">
+            {% for link in sec.links %}
+            <li><a href="{{ link.url }}" {% if link.open_in_new_tab %}target="_blank"{% endif %}>{{ link.label }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+        <div class="col-12 col-md-3">
+          <h6 class="fw-semibold mb-3 dl-footer-heading">{{ 'اشترك في النشرة' if _lang == 'ar' else 'Newsletter' }}</h6>
+          <form id="dl-newsletter-form">
+            <div class="input-group">
+              <input type="email" name="email" class="form-control form-control-sm" placeholder="{{ 'بريدك الإلكتروني' if _lang == 'ar' else 'Your email' }}" required />
+              <button type="submit" class="btn btn-primary btn-sm">{{ 'اشترك' if _lang == 'ar' else 'Subscribe' }}</button>
+            </div>
+          </form>
+          {% if _settings.support_email %}<div class="mt-2 small text-muted"><i class="fa fa-envelope me-1"></i><a href="mailto:{{ _settings.support_email }}">{{ _settings.support_email }}</a></div>{% endif %}
+          {% if _settings.support_phone %}<div class="mt-1 small text-muted"><i class="fa fa-phone me-1"></i><a href="tel:{{ _settings.support_phone }}">{{ _settings.support_phone }}</a></div>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dl-footer-bottom py-3 border-top">
+    <div class="container-xl">
+      <small class="text-muted">© {{ frappe.utils.now()[:4] }} {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}. {{ 'جميع الحقوق محفوظة' if _lang == 'ar' else 'All rights reserved' }}</small>
+    </div>
+  </div>
+</footer>
+{% endblock %}
+
+{% block base_scripts %}
+<script>
+  frappe.boot = {{ frappe.utils.orjson_dumps(boot, default=frappe.json_handler) }};
+  frappe.sys_defaults = frappe.boot.sysdefaults;
+  window.dlshop = { lang: '{{ _lang }}', rtl: {{ 'true' if _rtl else 'false' }}, currency: '{{ _settings.default_currency or "SAR" }}' };
+</script>
+{{ include_script('frappe-web.bundle.js') }}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="/assets/dlshop/js/dlshop.js?v=5"></script>
+{% if _rtl %}
+<script>document.body.classList.add('dl-shop','rtl');</script>
+{% else %}
+<script>document.body.classList.add('dl-shop');</script>
+{% endif %}
+{% if _settings.custom_body_html %}{{ _settings.custom_body_html }}{% endif %}
+{% endblock %}
+
+{% block script %}
+{% block page_scripts %}{% endblock %}
+{% endblock %}

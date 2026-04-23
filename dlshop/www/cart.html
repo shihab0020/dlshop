@@ -1,0 +1,90 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'سلة التسوق' if _lang == 'ar' else 'Shopping Cart' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container-xl py-4">
+  <h1 class="mb-4">{{ 'سلة التسوق' if _lang == 'ar' else 'Shopping Cart' }}</h1>
+
+  <div id="dl-cart-content">
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+  </div>
+</div>
+
+{# Cart templates (rendered by JS) #}
+<template id="tpl-cart-empty">
+  <div class="text-center py-5">
+    <i class="fa fa-shopping-bag fa-4x text-muted mb-3 d-block"></i>
+    <h4 class="text-muted">{{ 'سلتك فارغة' if _lang == 'ar' else 'Your cart is empty' }}</h4>
+    <a href="/shop/{{ _lang }}" class="btn btn-primary mt-3">{{ 'تسوق الآن' if _lang == 'ar' else 'Start Shopping' }}</a>
+  </div>
+</template>
+
+<template id="tpl-cart-has-items">
+  <div class="row g-4">
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="dl-cart-table">
+              <thead class="table-light">
+                <tr>
+                  <th>{{ 'المنتج' if _lang == 'ar' else 'Product' }}</th>
+                  <th class="text-center">{{ 'الكمية' if _lang == 'ar' else 'Qty' }}</th>
+                  <th class="text-end">{{ 'السعر' if _lang == 'ar' else 'Price' }}</th>
+                  <th class="text-end">{{ 'الإجمالي' if _lang == 'ar' else 'Total' }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="dl-cart-rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      {# Order Summary #}
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title mb-3">{{ 'ملخص الطلب' if _lang == 'ar' else 'Order Summary' }}</h5>
+          <div class="dl-summary-rows"></div>
+          <hr />
+          <div class="d-flex justify-content-between fw-bold fs-5">
+            <span>{{ 'الإجمالي' if _lang == 'ar' else 'Total' }}</span>
+            <span id="dl-cart-grand-total"></span>
+          </div>
+          <a href="/checkout/{{ _lang }}" class="btn btn-primary w-100 mt-3 btn-lg">
+            {{ 'إتمام الشراء' if _lang == 'ar' else 'Proceed to Checkout' }} <i class="fa fa-arrow-{{ 'left' if _lang == 'ar' else 'right' }} ms-2"></i>
+          </a>
+          <a href="/shop/{{ _lang }}" class="btn btn-outline-secondary w-100 mt-2">
+            {{ 'متابعة التسوق' if _lang == 'ar' else 'Continue Shopping' }}
+          </a>
+        </div>
+      </div>
+
+      {# Coupon #}
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title">{{ 'كوبون خصم' if _lang == 'ar' else 'Discount Coupon' }}</h6>
+          <div id="dl-coupon-applied" class="d-none alert alert-success d-flex justify-content-between align-items-center p-2">
+            <span id="dl-coupon-label"></span>
+            <button class="btn btn-sm btn-outline-danger" id="dl-remove-coupon">{{ 'إزالة' if _lang == 'ar' else 'Remove' }}</button>
+          </div>
+          <div id="dl-coupon-form">
+            <div class="input-group input-group-sm">
+              <input type="text" id="dl-coupon-input" class="form-control" placeholder="{{ 'أدخل الكود' if _lang == 'ar' else 'Enter code' }}" />
+              <button class="btn btn-outline-primary" id="dl-apply-coupon">{{ 'تطبيق' if _lang == 'ar' else 'Apply' }}</button>
+            </div>
+            <div id="dl-coupon-msg" class="small mt-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="/assets/dlshop/js/cart.js?v=3"></script>
+{% endblock %}

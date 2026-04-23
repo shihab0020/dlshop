@@ -1,0 +1,58 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ title }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container-xl py-4">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="/account/orders/{{ _lang }}" class="text-muted"><i class="fa fa-arrow-{{ 'right' if _lang == 'ar' else 'left' }}"></i></a>
+    <h1 class="mb-0">{{ 'تفاصيل الطلب' if _lang == 'ar' else 'Order Detail' }}</h1>
+  </div>
+  <div id="dl-order-detail-content">
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function() {
+  var orderName = '{{ order_name | e }}';
+  var lang = '{{ _lang }}';
+  var currency = '{{ shop_settings.default_currency or "SAR" }}';
+  var isSAR = !currency || currency === 'SAR';
+  var sym = isSAR ? '⃁' : currency;
+  function fmt(v) { return sym + ' ' + parseFloat(v || 0).toLocaleString(undefined, {minimumFractionDigits:2}); }
+  frappe.call({ method: 'dlshop.api.account.get_order_detail', args: { order_id: orderName },
+    callback: function(r) {
+      var o = r.message;
+      var el = document.getElementById('dl-order-detail-content');
+      if (!o) { el.innerHTML = '<div class="alert alert-warning">{{ "لم يتم العثور على الطلب" if _lang=="ar" else "Order not found" }}</div>'; return; }
+      var rows = o.items.map(function(i) {
+        return '<tr>' +
+          '<td class="d-flex align-items-center gap-2">' + (i.image ? '<img src="'+i.image+'" height="50" class="rounded" />' : '<div class="bg-light rounded" style="width:50px;height:50px;"></div>') +
+          '<span>' + i.item_name + '</span></td>' +
+          '<td class="text-center">' + i.qty + '</td>' +
+          '<td class="text-end">' + fmt(i.rate) + '</td>' +
+          '<td class="text-end fw-semibold">' + fmt(i.amount) + '</td>' +
+          '</tr>';
+      }).join('');
+      el.innerHTML = '<div class="row g-4">' +
+        '<div class="col-12 col-lg-8"><div class="card border-0 shadow-sm"><div class="card-body">' +
+        '<div class="d-flex justify-content-between mb-3"><div><p class="mb-1 text-muted small">{{ "رقم الطلب" if _lang=="ar" else "Order ID" }}</p><h5 class="mb-0"><code>' + o.name + '</code></h5></div>' +
+        '<span class="badge bg-primary fs-6">' + (o.status || '') + '</span></div>' +
+        '<p class="text-muted mb-3">{{ "التاريخ:" if _lang=="ar" else "Date:" }} ' + o.date + '</p>' +
+        '<div class="table-responsive"><table class="table align-middle"><thead class="table-light"><tr>' +
+        '<th>{{ "المنتج" if _lang=="ar" else "Product" }}</th><th class="text-center">{{ "الكمية" if _lang=="ar" else "Qty" }}</th><th class="text-end">{{ "السعر" if _lang=="ar" else "Price" }}</th><th class="text-end">{{ "الإجمالي" if _lang=="ar" else "Total" }}</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '</div></div></div>' +
+        '<div class="col-12 col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body">' +
+        '<h5 class="card-title">{{ "ملخص" if _lang=="ar" else "Summary" }}</h5>' +
+        '<div class="d-flex justify-content-between border-bottom pb-2 mb-2"><span class="text-muted">{{ "الإجمالي النهائي" if _lang=="ar" else "Grand Total" }}</span><strong>' + fmt(o.grand_total) + '</strong></div>' +
+        '<div class="d-flex justify-content-between"><span class="text-muted">{{ "حالة التوصيل" if _lang=="ar" else "Delivery" }}</span><span>' + (o.delivery_status || '-') + '</span></div>' +
+        '</div></div></div></div>';
+    }
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "creation": "2024-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sales_order", "column_break1", "status",
+  "section_break2",
+  "amount", "column_break3", "currency",
+  "section_break4",
+  "tabby_session_id", "column_break5", "tabby_payment_id",
+  "section_break6",
+  "tabby_order_url"
+ ],
+ "fields": [
+  {"fieldname": "sales_order", "fieldtype": "Link", "options": "Sales Order", "label": "Sales Order", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "column_break1", "fieldtype": "Column Break"},
+  {"fieldname": "status", "fieldtype": "Select", "label": "Status", "in_list_view": 1,
+   "options": "PENDING\nCREATED\nAUTHORIZED\nCLOSED\nREJECTED\nEXPIRED\nFAILURE",
+   "default": "PENDING", "read_only": 1},
+  {"fieldname": "section_break2", "fieldtype": "Section Break"},
+  {"fieldname": "amount", "fieldtype": "Currency", "label": "Amount", "read_only": 1},
+  {"fieldname": "column_break3", "fieldtype": "Column Break"},
+  {"fieldname": "currency", "fieldtype": "Data", "label": "Currency", "read_only": 1},
+  {"fieldname": "section_break4", "fieldtype": "Section Break"},
+  {"fieldname": "tabby_session_id", "fieldtype": "Data", "label": "Tabby Session ID", "read_only": 1},
+  {"fieldname": "column_break5", "fieldtype": "Column Break"},
+  {"fieldname": "tabby_payment_id", "fieldtype": "Data", "label": "Tabby Payment ID", "read_only": 1},
+  {"fieldname": "section_break6", "fieldtype": "Section Break"},
+  {"fieldname": "tabby_order_url", "fieldtype": "Data", "label": "Tabby Checkout URL", "options": "URL", "read_only": 1}
+ ],
+ "modified": "2024-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dlshop",
+ "name": "DL Tabby Log",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1}
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "title_field": "sales_order"
+}

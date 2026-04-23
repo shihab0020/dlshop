@@ -1,0 +1,363 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+{% from "dlshop/templates/macros/item_card.html" import item_card, pagination %}
+
+{% block title %}{{ title }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+
+{# ============================================================ HERO CAROUSEL #}
+{# Fallback hero when no banners are configured #}
+{% if not hero_banners and not current_category %}
+<div class="dl-fallback-hero">
+  <div class="container-xl">
+    <div class="row align-items-center">
+      <div class="col-12 col-md-7">
+        <p class="dl-fallback-tag">{{ 'مجموعة جديدة' if _lang == 'ar' else 'New Collection' }}</p>
+        <h1 class="dl-fallback-title">{{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}</h1>
+        <p class="dl-fallback-sub">{{ _settings.site_description_ar if _lang == 'ar' else _settings.site_description_en }}</p>
+        <a href="#dl-products-grid" class="btn dl-fallback-btn">
+          {{ 'تسوق الآن' if _lang == 'ar' else 'Shop Now' }} <i class="fa fa-arrow-right ms-2"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if hero_banners %}
+<div id="dlHeroCarousel" class="carousel slide dl-hero-carousel" data-bs-ride="carousel" data-bs-interval="4500">
+  {% if hero_banners | length > 1 %}
+  <div class="carousel-indicators">
+    {% for banner in hero_banners %}
+    <button type="button" data-bs-target="#dlHeroCarousel" data-bs-slide-to="{{ loop.index0 }}"
+            class="{% if loop.first %}active{% endif %}" aria-label="Slide {{ loop.index }}"></button>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="carousel-inner">
+    {% for banner in hero_banners %}
+    <div class="carousel-item {% if loop.first %}active{% endif %}">
+      <div class="dl-hero-slide" style="background-image:url('{{ banner.desktop_image }}');">
+        <div class="dl-hero-overlay" style="opacity:{{ (banner.overlay_opacity or 30) / 100 }};"></div>
+        <div class="container-xl position-relative py-5" style="z-index:2;">
+          <div class="row align-items-center" style="min-height:420px;">
+            <div class="col-12 col-md-6">
+              <h1 class="dl-hero-title text-{{ banner.text_color | lower }}">
+                {{ banner.title_ar if _lang == 'ar' else banner.title_en }}
+              </h1>
+              {% set sub = banner.subtitle_ar if _lang == 'ar' else banner.subtitle_en %}
+              {% if sub %}<p class="dl-hero-subtitle text-{{ banner.text_color | lower }}">{{ sub }}</p>{% endif %}
+              {% set btn_text = banner.button_text_ar if _lang == 'ar' else banner.button_text_en %}
+              {% if btn_text and banner.link %}
+              <a href="{{ banner.link }}" class="btn btn-primary btn-lg mt-3 dl-hero-btn">
+                {{ btn_text }} <i class="fa fa-arrow-right {% if _lang == 'ar' %}fa-arrow-left{% endif %} ms-2"></i>
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% if hero_banners | length > 1 %}
+  <button class="carousel-control-prev" type="button" data-bs-target="#dlHeroCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#dlHeroCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon"></span>
+  </button>
+  {% endif %}
+</div>
+{% endif %}
+
+{# ============================================================ HOMEPAGE SECTIONS #}
+{% if not current_category %}
+
+{# ─── Category Icons Strip ─── #}
+{% if categories %}
+<div class="dl-cat-icons-strip">
+  <div class="container-xl">
+    <div class="dl-cat-icons-inner">
+      <a href="/shop/{{ _lang }}" class="dl-cat-icon-item">
+        <div class="dl-cat-icon-circle"><i class="fa fa-th-large"></i></div>
+        <span class="dl-cat-icon-label">{{ 'الكل' if _lang == 'ar' else 'All' }}</span>
+      </a>
+      {% for cat in categories %}
+      <a href="/shop/{{ _lang }}/{{ cat.route }}" class="dl-cat-icon-item">
+        <div class="dl-cat-icon-circle">
+          {% if cat.image %}
+          <img src="{{ cat.image }}" alt="{{ cat.name_display }}" />
+          {% elif cat.icon_class %}
+          <i class="{{ cat.icon_class }}"></i>
+          {% else %}
+          <i class="fa fa-tag"></i>
+          {% endif %}
+        </div>
+        <span class="dl-cat-icon-label">{{ cat.name_display }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{# ─── Flash Deals · New Arrivals · Featured — side-by-side columns ─── #}
+{% if flash_deals or new_arrivals or featured_items %}
+<div class="container-xl py-3">
+  <div class="row g-3 align-items-stretch">
+
+    {# ── Flash Deals column ── #}
+    {% if flash_deals %}
+    <div class="col-12 col-md-4">
+      <div class="dl-home-col h-100">
+        <div class="dl-home-col-head dl-home-col-head-flash">
+          <span class="dl-home-col-title">
+            <i class="fa fa-bolt dl-bolt-icon"></i>
+            {{ 'عروض اليوم' if _lang == 'ar' else 'Flash Deals' }}
+          </span>
+          <div class="dl-timer-inline">
+            <span id="dl-t-h">00</span><span class="dl-ti-sep">:</span><span id="dl-t-m">00</span><span class="dl-ti-sep">:</span><span id="dl-t-s">00</span>
+          </div>
+          <a href="/shop/{{ _lang }}?sale=1" class="dl-home-see-all ms-auto">{{ 'الكل' if _lang == 'ar' else 'All' }}</a>
+        </div>
+        {% for item in flash_deals[:5] %}
+        <a href="/shop/{{ _lang }}/product/{{ item.route }}" class="dl-mini-card">
+          <div class="dl-mini-img">
+            {% if item.featured_image %}<img src="{{ item.featured_image }}" alt="{{ item.name_display }}" loading="lazy" />
+            {% else %}<i class="fa fa-image text-muted"></i>{% endif %}
+            {% if item.discount_pct > 0 %}<span class="dl-mini-disc">-{{ item.discount_pct }}%</span>{% endif %}
+          </div>
+          <div class="dl-mini-info">
+            <p class="dl-mini-name">{{ item.name_display }}</p>
+            <div class="dl-mini-price">
+              <span class="dl-price-sale">{{ item.price | currency }}</span>
+              {% if item.orig_price and item.orig_price > item.price %}
+              <span class="dl-price-orig">{{ item.orig_price | currency }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# ── New Arrivals column ── #}
+    {% if new_arrivals %}
+    <div class="col-12 col-md-4">
+      <div class="dl-home-col h-100">
+        <div class="dl-home-col-head">
+          <span class="dl-home-col-title">
+            <span class="dl-section-dot" style="background:#2e7d32;display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:6px;"></span>
+            {{ 'وصل حديثاً' if _lang == 'ar' else 'New Arrivals' }}
+          </span>
+          <a href="/shop/{{ _lang }}" class="dl-home-see-all ms-auto">{{ 'الكل' if _lang == 'ar' else 'All' }}</a>
+        </div>
+        {% for item in new_arrivals[:5] %}
+        {% set _name = item.web_item_name_ar if _lang == 'ar' else item.web_item_name_en %}
+        {% set _has_sale = item.is_on_sale and item.sale_price and item.sale_price < item.price %}
+        <a href="/shop/{{ _lang }}/product/{{ item.route }}" class="dl-mini-card">
+          <div class="dl-mini-img">
+            {% if item.featured_image %}<img src="{{ item.featured_image }}" alt="{{ _name }}" loading="lazy" />
+            {% else %}<i class="fa fa-image text-muted"></i>{% endif %}
+          </div>
+          <div class="dl-mini-info">
+            <p class="dl-mini-name">{{ _name }}</p>
+            <div class="dl-mini-price">
+              {% if _has_sale %}
+              <span class="dl-price-sale">{{ item.sale_price | currency }}</span>
+              <span class="dl-price-orig">{{ item.price | currency }}</span>
+              {% else %}
+              <span class="dl-price">{{ (item.sale_price or item.price) | currency }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# ── Featured Products column ── #}
+    {% if featured_items %}
+    <div class="col-12 col-md-4">
+      <div class="dl-home-col dl-home-col-featured h-100">
+        <div class="dl-home-col-head">
+          <span class="dl-home-col-title">
+            <span class="dl-section-dot" style="background:var(--dl-primary);display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:6px;"></span>
+            {{ 'منتجات مميزة' if _lang == 'ar' else 'Featured' }}
+          </span>
+          <a href="/shop/{{ _lang }}" class="dl-home-see-all ms-auto">{{ 'الكل' if _lang == 'ar' else 'All' }}</a>
+        </div>
+        {% for item in featured_items[:5] %}
+        {% set _name = item.web_item_name_ar if _lang == 'ar' else item.web_item_name_en %}
+        {% set _has_sale = item.has_discount %}
+        <a href="/shop/{{ _lang }}/product/{{ item.route }}" class="dl-mini-card">
+          <div class="dl-mini-img">
+            {% if item.featured_image %}<img src="{{ item.featured_image }}" alt="{{ _name }}" loading="lazy" />
+            {% else %}<i class="fa fa-image text-muted"></i>{% endif %}
+          </div>
+          <div class="dl-mini-info">
+            <p class="dl-mini-name">{{ _name }}</p>
+            <div class="dl-mini-price">
+              {% if _has_sale and item.original_price and item.original_price > item.price %}
+              <span class="dl-price-sale">{{ item.price | currency }}</span>
+              <span class="dl-price-orig">{{ item.original_price | currency }}</span>
+              {% else %}
+              <span class="dl-price">{{ item.price | currency }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endif %}
+
+{# ─── Promo Banners (2-col) ─── #}
+{% if promo_banners %}
+<div class="container-xl pb-2">
+  <div class="row g-3">
+    {% for pb in promo_banners %}
+    <div class="col-12 col-sm-6">
+      <a href="{{ pb.link or '#' }}" class="dl-promo-banner position-relative d-block rounded-3 overflow-hidden"
+         style="height:160px; background-image:url('{{ pb.desktop_image }}'); background-size:cover; background-position:center;">
+        <div class="dl-hero-overlay" style="opacity:{{ (pb.overlay_opacity or 30) / 100 }};"></div>
+        <div class="position-absolute inset-0 p-3 d-flex flex-column justify-content-end" style="z-index:2;">
+          <h5 class="text-{{ pb.text_color | lower }} mb-1 fw-bold">{{ pb.title_ar if _lang == 'ar' else pb.title_en }}</h5>
+          {% set btn = pb.button_text_ar if _lang == 'ar' else pb.button_text_en %}
+          {% if btn %}<span class="badge bg-primary">{{ btn }} →</span>{% endif %}
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{# placeholder to keep endif balance #}
+{% if false %}
+</div>
+{% endif %}
+
+{% endif %}{# end not current_category #}
+
+{# ============================================================ MAIN SHOP GRID #}
+<div class="dl-grid-divider">
+  <div class="container-xl">
+    <div class="dl-grid-divider-inner">
+      <span>{{ 'جميع المنتجات' if _lang == 'ar' else 'All Products' }}</span>
+    </div>
+  </div>
+</div>
+<div class="container-xl py-3">
+
+  {# Category header #}
+  {% if current_category %}
+  <div class="dl-category-header mb-4">
+    {% if current_category.image %}
+    <div class="dl-cat-banner-wrap position-relative rounded-3 overflow-hidden mb-3" style="height:200px;">
+      <img src="{{ current_category.image }}" alt="" class="w-100 h-100 object-fit-cover" />
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center px-4" style="background:rgba(0,0,0,.4);">
+        <h1 class="text-white fw-bold mb-0">{{ current_category.category_name_ar if _lang == 'ar' else current_category.category_name_en }}</h1>
+      </div>
+    </div>
+    {% else %}
+    <h1 class="mb-2">{{ current_category.category_name_ar if _lang == 'ar' else current_category.category_name_en }}</h1>
+    {% endif %}
+    {% set desc = current_category.description_ar if _lang == 'ar' else current_category.description_en %}
+    {% if desc %}<p class="text-muted">{{ desc }}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="row g-4">
+    {# ── Sidebar ── #}
+    <aside class="col-12 col-lg-3 dl-sidebar">
+      <div class="dl-filter-panel card border-0 shadow-sm p-3">
+        <h5 class="fw-semibold mb-3">{{ 'تصفية النتائج' if _lang == 'ar' else 'Filters' }}</h5>
+
+        <div class="dl-filter-section mb-4">
+          <h6 class="text-muted text-uppercase small mb-2">{{ 'الفئات' if _lang == 'ar' else 'Categories' }}</h6>
+          <ul class="list-unstyled dl-filter-list">
+            <li><a href="/shop/{{ _lang }}" class="dl-filter-link {% if not category_route %}active fw-semibold{% endif %}">{{ 'كل المنتجات' if _lang == 'ar' else 'All Products' }}</a></li>
+            {% for cat in categories %}
+            <li>
+              <a href="/shop/{{ _lang }}/{{ cat.route }}" class="dl-filter-link {% if category_route == cat.route %}active fw-semibold{% endif %}">
+                {{ cat.name_display }}
+              </a>
+              {% if cat.children %}
+              <ul class="list-unstyled ps-3 mt-1">
+                {% for sub in cat.children %}
+                <li><a href="/shop/{{ _lang }}/{{ sub.route }}" class="dl-filter-link small {% if category_route == sub.route %}active{% endif %}">{{ sub.name_display }}</a></li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="dl-filter-section mb-4">
+          <h6 class="text-muted text-uppercase small mb-2">{{ 'نطاق السعر' if _lang == 'ar' else 'Price Range' }}</h6>
+          <div class="row g-2">
+            <div class="col-6"><input type="number" id="dl-min-price" class="form-control form-control-sm" placeholder="{{ 'من' if _lang == 'ar' else 'Min' }}" min="0" /></div>
+            <div class="col-6"><input type="number" id="dl-max-price" class="form-control form-control-sm" placeholder="{{ 'إلى' if _lang == 'ar' else 'Max' }}" min="0" /></div>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm mt-2 w-100" id="dl-apply-price">{{ 'تطبيق' if _lang == 'ar' else 'Apply' }}</button>
+        </div>
+
+        <div class="dl-filter-section" id="dl-brand-filter">
+          <h6 class="text-muted text-uppercase small mb-2">{{ 'العلامة التجارية' if _lang == 'ar' else 'Brand' }}</h6>
+          <div id="dl-brand-list" class="dl-brand-check-list"></div>
+        </div>
+      </div>
+    </aside>
+
+    {# ── Product Grid ── #}
+    <div class="col-12 col-lg-9">
+      <div class="dl-grid-header d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <small class="text-muted" id="dl-total-text"></small>
+        <div class="d-flex gap-2 align-items-center">
+          <select class="form-select form-select-sm" id="dl-sort-select" style="width:auto;">
+            <option value="sort_order">{{ 'الترتيب الافتراضي' if _lang == 'ar' else 'Default' }}</option>
+            <option value="modified|desc">{{ 'الأحدث' if _lang == 'ar' else 'Newest' }}</option>
+            <option value="view_count|desc">{{ 'الأكثر مشاهدة' if _lang == 'ar' else 'Most Viewed' }}</option>
+            <option value="purchase_count|desc">{{ 'الأكثر مبيعاً' if _lang == 'ar' else 'Best Selling' }}</option>
+            <option value="web_item_name_en|asc">{{ 'الاسم أ-ي' if _lang == 'ar' else 'Name A-Z' }}</option>
+          </select>
+          <div class="btn-group dl-view-switch">
+            <button class="btn btn-outline-secondary btn-sm active" id="dl-grid-view" title="{{ 'عرض شبكي' if _lang == 'ar' else 'Grid view' }}"><i class="fa fa-th-large"></i></button>
+            <button class="btn btn-outline-secondary btn-sm" id="dl-list-view" title="{{ 'عرض قائمة' if _lang == 'ar' else 'List view' }}"><i class="fa fa-list"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div id="dl-products-grid" class="row row-cols-2 row-cols-sm-3 row-cols-xl-4 g-2">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+      </div>
+      <div id="dl-pagination" class="mt-4"></div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+var dlShopConfig = {
+  lang: '{{ _lang }}',
+  rtl: {{ 'true' if is_rtl else 'false' }},
+  categoryRoute: '{{ category_route or "" }}',
+  searchQ: '{{ q | e }}',
+  currency: '{{ shop_settings.default_currency or "SAR" }}',
+};
+</script>
+<script src="/assets/dlshop/js/shop.js?v=9"></script>
+{% endblock %}

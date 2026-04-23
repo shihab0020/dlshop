@@ -1,0 +1,91 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'طلباتي' if _lang == 'ar' else 'My Orders' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container-xl py-4">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="/account/{{ _lang }}" class="text-muted"><i class="fa fa-arrow-{{ 'right' if _lang == 'ar' else 'left' }}"></i></a>
+    <h1 class="mb-0">{{ 'طلباتي' if _lang == 'ar' else 'My Orders' }}</h1>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div id="dl-orders-content">
+        <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="dl-orders-pagination" class="mt-3"></div>
+</div>
+
+<template id="tpl-orders-empty">
+  <div class="text-center py-5 px-3">
+    <i class="fa fa-box-open fa-3x text-muted mb-3 d-block"></i>
+    <h5 class="text-muted">{{ 'لا توجد طلبات بعد' if _lang == 'ar' else 'No orders yet' }}</h5>
+    <a href="/shop/{{ _lang }}" class="btn btn-primary mt-3">{{ 'تسوق الآن' if _lang == 'ar' else 'Start Shopping' }}</a>
+  </div>
+</template>
+
+<template id="tpl-orders-table">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>{{ 'رقم الطلب' if _lang == 'ar' else 'Order #' }}</th>
+          <th>{{ 'التاريخ' if _lang == 'ar' else 'Date' }}</th>
+          <th>{{ 'الإجمالي' if _lang == 'ar' else 'Total' }}</th>
+          <th>{{ 'حالة الطلب' if _lang == 'ar' else 'Status' }}</th>
+          <th>{{ 'حالة التوصيل' if _lang == 'ar' else 'Delivery' }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="dl-orders-tbody"></tbody>
+    </table>
+  </div>
+</template>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function() {
+  var lang = '{{ _lang }}', currency = '{{ shop_settings.default_currency or "SAR" }}';
+  var isSAR = !currency || currency === 'SAR';
+  var sym = isSAR ? '⃁' : currency;
+  function fmt(v) { return sym + ' ' + parseFloat(v || 0).toLocaleString(undefined, {minimumFractionDigits:2}); }
+  var statusMap = {
+    'Completed': ['{{ "مكتمل" if _lang=="ar" else "Completed" }}', 'bg-success'],
+    'To Deliver and Bill': ['{{ "قيد التوصيل" if _lang=="ar" else "Processing" }}', 'bg-warning text-dark'],
+    'To Bill': ['{{ "بانتظار الفاتورة" if _lang=="ar" else "To Bill" }}', 'bg-info text-dark'],
+    'Cancelled': ['{{ "ملغي" if _lang=="ar" else "Cancelled" }}', 'bg-danger'],
+  };
+
+  function loadOrders(page) {
+    frappe.call({ method: 'dlshop.api.account.get_orders', args: { page: page || 1 },
+      callback: function(r) {
+        var data = r.message;
+        var container = document.getElementById('dl-orders-content');
+        if (!data || !data.orders || !data.orders.length) {
+          container.innerHTML = document.getElementById('tpl-orders-empty').innerHTML;
+          return;
+        }
+        container.innerHTML = document.getElementById('tpl-orders-table').innerHTML;
+        var tbody = document.getElementById('dl-orders-tbody');
+        data.orders.forEach(function(o) {
+          var st = statusMap[o.status] || [o.status, 'bg-secondary'];
+          tbody.innerHTML += '<tr>' +
+            '<td><code>' + o.name + '</code></td>' +
+            '<td>' + o.transaction_date + '</td>' +
+            '<td class="fw-semibold">' + fmt(o.grand_total) + '</td>' +
+            '<td><span class="badge ' + st[1] + '">' + st[0] + '</span></td>' +
+            '<td><span class="badge bg-light text-dark">' + (o.delivery_status || '-') + '</span></td>' +
+            '<td><a href="/account/order/' + o.name + '/' + lang + '" class="btn btn-sm btn-outline-primary">{{ "عرض" if _lang=="ar" else "View" }}</a></td>' +
+            '</tr>';
+        });
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function() { loadOrders(1); });
+})();
+</script>
+{% endblock %}

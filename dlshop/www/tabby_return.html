@@ -1,0 +1,67 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'نتيجة الدفع' if lang == 'ar' else 'Payment Result' }}{% endblock %}
+
+{% block page_content %}
+<div class="container py-5" style="max-width:560px;">
+  <div class="card border-0 shadow-sm text-center py-5 px-4">
+
+    {% if success %}
+    {# ── Success ── #}
+    <div class="mb-4">
+      <i class="fa fa-check-circle text-success" style="font-size:5rem;"></i>
+    </div>
+    <h2 class="text-success mb-2">{{ 'تم الدفع بنجاح!' if lang == 'ar' else 'Payment Successful!' }}</h2>
+    {% if order_id %}
+    <p class="text-muted mb-1">
+      {{ 'رقم الطلب:' if lang == 'ar' else 'Order ID:' }}
+      <strong>{{ order_id }}</strong>
+    </p>
+    {% endif %}
+    <p class="text-muted mb-4">
+      {{ 'شكراً لك! سنرسل لك تأكيداً بالبريد الإلكتروني قريباً.' if lang == 'ar'
+         else "Thank you! We'll send you a confirmation email shortly." }}
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      {% if order_id %}
+      <a href="{{ orders_url }}" class="btn btn-primary">
+        <i class="fa fa-list me-1"></i>{{ 'تتبع طلباتي' if lang == 'ar' else 'My Orders' }}
+      </a>
+      {% endif %}
+      <a href="{{ shop_url }}" class="btn btn-outline-secondary">
+        {{ 'مواصلة التسوق' if lang == 'ar' else 'Continue Shopping' }}
+      </a>
+    </div>
+
+    {% elif cancelled %}
+    {# ── Cancelled ── #}
+    <div class="mb-4">
+      <i class="fa fa-times-circle text-warning" style="font-size:5rem;"></i>
+    </div>
+    <h2 class="text-warning mb-2">{{ 'تم إلغاء الدفع' if lang == 'ar' else 'Payment Cancelled' }}</h2>
+    <p class="text-muted mb-4">
+      {{ 'لم يتم إتمام الدفع. يمكنك المحاولة مجدداً.' if lang == 'ar'
+         else 'Your payment was not completed. You can try again.' }}
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="{{ shop_url }}" class="btn btn-primary">{{ 'العودة للمتجر' if lang == 'ar' else 'Back to Shop' }}</a>
+    </div>
+
+    {% else %}
+    {# ── Failure ── #}
+    <div class="mb-4">
+      <i class="fa fa-exclamation-circle text-danger" style="font-size:5rem;"></i>
+    </div>
+    <h2 class="text-danger mb-2">{{ 'فشل الدفع' if lang == 'ar' else 'Payment Failed' }}</h2>
+    <p class="text-muted mb-4">
+      {{ 'نأسف، لم يتم معالجة الدفع. يرجى المحاولة مجدداً أو اختيار طريقة دفع أخرى.' if lang == 'ar'
+         else 'Sorry, your payment could not be processed. Please try again or choose another payment method.' }}
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="{{ shop_url }}" class="btn btn-primary">{{ 'العودة للمتجر' if lang == 'ar' else 'Back to Shop' }}</a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

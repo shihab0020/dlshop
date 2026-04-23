@@ -1,0 +1,293 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{% if active_tab == 'register' %}{{ 'إنشاء حساب' if _lang == 'ar' else 'Create Account' }}{% else %}{{ 'تسجيل الدخول' if _lang == 'ar' else 'Sign In' }}{% endif %} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container py-5" style="max-width:520px;">
+
+  {# ── Tab switcher ─────────────────────────────────────────── #}
+  <ul class="nav nav-pills nav-fill mb-4 dl-auth-tabs" id="dl-auth-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link {% if active_tab != 'register' %}active{% endif %}" id="dl-login-tab" data-bs-toggle="pill" data-bs-target="#dl-login-pane" type="button" role="tab">
+        <i class="fa fa-sign-in-alt me-2"></i>{{ 'تسجيل الدخول' if _lang == 'ar' else 'Sign In' }}
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link {% if active_tab == 'register' %}active{% endif %}" id="dl-register-tab" data-bs-toggle="pill" data-bs-target="#dl-register-pane" type="button" role="tab">
+        <i class="fa fa-user-plus me-2"></i>{{ 'إنشاء حساب' if _lang == 'ar' else 'Create Account' }}
+      </button>
+    </li>
+  </ul>
+
+  <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="tab-content">
+
+      {# ══════════════════════ LOGIN PANEL ══════════════════════ #}
+      <div class="tab-pane fade {% if active_tab != 'register' %}show active{% endif %}" id="dl-login-pane" role="tabpanel">
+        <div class="card-body p-4 p-md-5">
+          <h4 class="fw-bold mb-1">{{ 'مرحبًا بعودتك' if _lang == 'ar' else 'Welcome back' }}</h4>
+          <p class="text-muted small mb-4">{{ 'ادخل بيانات حسابك للمتابعة' if _lang == 'ar' else 'Sign in to your account to continue' }}</p>
+
+          <div id="dl-login-alert" class="alert d-none" role="alert"></div>
+
+          <form id="dl-login-form" novalidate>
+            <input type="hidden" name="redirect_to" value="{{ redirect_to }}">
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">{{ 'البريد الإلكتروني' if _lang == 'ar' else 'Email address' }}</label>
+              <input type="email" class="form-control" name="email" id="login-email" placeholder="{{ 'example@email.com' }}" required autocomplete="email" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold d-flex justify-content-between">
+                {{ 'كلمة المرور' if _lang == 'ar' else 'Password' }}
+                <a href="/update-password" class="small text-muted">{{ 'نسيت كلمة المرور؟' if _lang == 'ar' else 'Forgot password?' }}</a>
+              </label>
+              <div class="input-group">
+                <input type="password" class="form-control" name="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" />
+                <button class="btn btn-outline-secondary dl-toggle-pw" type="button" tabindex="-1"><i class="fa fa-eye"></i></button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-2" id="dl-login-btn">
+              {{ 'تسجيل الدخول' if _lang == 'ar' else 'Sign In' }}
+            </button>
+          </form>
+
+          <hr class="my-4" />
+          <p class="text-center text-muted small mb-0">
+            {{ 'ليس لديك حساب؟' if _lang == 'ar' else "Don't have an account?" }}
+            <a href="#" class="fw-semibold" id="dl-goto-register">{{ 'إنشاء حساب مجاني' if _lang == 'ar' else 'Create a free account' }}</a>
+          </p>
+        </div>
+      </div>
+
+      {# ══════════════════════ REGISTER PANEL ══════════════════ #}
+      <div class="tab-pane fade {% if active_tab == 'register' %}show active{% endif %}" id="dl-register-pane" role="tabpanel">
+        <div class="card-body p-4 p-md-5">
+          <h4 class="fw-bold mb-1">{{ 'إنشاء حساب جديد' if _lang == 'ar' else 'Create your account' }}</h4>
+          <p class="text-muted small mb-4">{{ 'انضم إلينا للاستمتاع بتجربة تسوق مميزة' if _lang == 'ar' else 'Join us for a seamless shopping experience' }}</p>
+
+          <div id="dl-register-alert" class="alert d-none" role="alert"></div>
+
+          <form id="dl-register-form" novalidate>
+
+            {# ── Personal info ─────────────────────────────── #}
+            <div class="mb-3">
+              <label class="form-label fw-semibold">{{ 'الاسم الكامل' if _lang == 'ar' else 'Full Name' }} <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="full_name" placeholder="{{ 'محمد عبدالله' if _lang == 'ar' else 'John Smith' }}" required autocomplete="name" />
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-sm-7">
+                <label class="form-label fw-semibold">{{ 'البريد الإلكتروني' if _lang == 'ar' else 'Email' }} <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" name="email" placeholder="example@email.com" required autocomplete="email" />
+              </div>
+              <div class="col-12 col-sm-5">
+                <label class="form-label fw-semibold">{{ 'رقم الجوال' if _lang == 'ar' else 'Phone' }} <span class="text-danger">*</span></label>
+                <input type="tel" class="form-control" name="phone" placeholder="{{ '05xxxxxxxx' if _lang == 'ar' else '+966 5x xxx xxxx' }}" required autocomplete="tel" />
+              </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-sm-6">
+                <label class="form-label fw-semibold">{{ 'كلمة المرور' if _lang == 'ar' else 'Password' }} <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="password" class="form-control" name="password" id="reg-password" placeholder="••••••••" required autocomplete="new-password" minlength="6" />
+                  <button class="btn btn-outline-secondary dl-toggle-pw" type="button" tabindex="-1"><i class="fa fa-eye"></i></button>
+                </div>
+                <div class="form-text">{{ 'على الأقل 6 أحرف' if _lang == 'ar' else 'At least 6 characters' }}</div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label fw-semibold">{{ 'تأكيد كلمة المرور' if _lang == 'ar' else 'Confirm Password' }} <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" name="confirm_password" id="reg-confirm-password" placeholder="••••••••" required autocomplete="new-password" />
+              </div>
+            </div>
+
+            {# ── Address (collapsible) ──────────────────────── #}
+            <div class="mb-3">
+              <button class="btn btn-link p-0 text-decoration-none fw-semibold small" type="button" data-bs-toggle="collapse" data-bs-target="#dl-addr-collapse">
+                <i class="fa fa-map-marker-alt me-1"></i>
+                {{ 'إضافة عنوان (اختياري)' if _lang == 'ar' else 'Add delivery address (optional)' }}
+                <i class="fa fa-chevron-down ms-1 small"></i>
+              </button>
+            </div>
+            <div class="collapse mb-4" id="dl-addr-collapse">
+              <div class="p-3 border rounded-3 bg-light">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold small">{{ 'العنوان' if _lang == 'ar' else 'Address Line' }}</label>
+                  <input type="text" class="form-control form-control-sm" name="address_line1" placeholder="{{ 'شارع الملك فهد، حي العليا' if _lang == 'ar' else 'Street address, apartment, etc.' }}" />
+                </div>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label fw-semibold small">{{ 'المدينة' if _lang == 'ar' else 'City' }}</label>
+                    <input type="text" class="form-control form-control-sm" name="city" placeholder="{{ 'الرياض' if _lang == 'ar' else 'Riyadh' }}" />
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label fw-semibold small">{{ 'الدولة' if _lang == 'ar' else 'Country' }}</label>
+                    <select class="form-select form-select-sm" name="country">
+                      <option value="Saudi Arabia" selected>{{ 'المملكة العربية السعودية' if _lang == 'ar' else 'Saudi Arabia' }}</option>
+                      <option value="United Arab Emirates">{{ 'الإمارات' if _lang == 'ar' else 'UAE' }}</option>
+                      <option value="Kuwait">{{ 'الكويت' if _lang == 'ar' else 'Kuwait' }}</option>
+                      <option value="Qatar">{{ 'قطر' if _lang == 'ar' else 'Qatar' }}</option>
+                      <option value="Bahrain">{{ 'البحرين' if _lang == 'ar' else 'Bahrain' }}</option>
+                      <option value="Oman">{{ 'عُمان' if _lang == 'ar' else 'Oman' }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="dl-register-btn">
+              <i class="fa fa-user-plus me-2"></i>{{ 'إنشاء الحساب' if _lang == 'ar' else 'Create Account' }}
+            </button>
+          </form>
+
+          <hr class="my-4" />
+          <p class="text-center text-muted small mb-0">
+            {{ 'لديك حساب بالفعل؟' if _lang == 'ar' else 'Already have an account?' }}
+            <a href="#" class="fw-semibold" id="dl-goto-login">{{ 'تسجيل الدخول' if _lang == 'ar' else 'Sign in' }}</a>
+          </p>
+        </div>
+      </div>
+
+    </div>{# /.tab-content #}
+  </div>{# /.card #}
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function () {
+  'use strict';
+  var lang = window.dlshop && window.dlshop.lang || '{{ _lang }}';
+  var redirectTo = '{{ redirect_to }}';
+
+  /* ── helpers ───────────────────────────────────────────────── */
+  function showAlert(id, msg, type) {
+    var el = document.getElementById(id);
+    el.className = 'alert alert-' + (type || 'danger');
+    el.textContent = msg;
+    el.classList.remove('d-none');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function hideAlert(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('d-none');
+  }
+  function setLoading(btn, loading) {
+    btn.disabled = loading;
+    if (loading) {
+      btn._orig = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + (lang === 'ar' ? 'جاري المعالجة...' : 'Processing...');
+    } else {
+      btn.innerHTML = btn._orig;
+    }
+  }
+
+  /* ── password toggle ───────────────────────────────────────── */
+  document.querySelectorAll('.dl-toggle-pw').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var inp = this.closest('.input-group').querySelector('input');
+      var icon = this.querySelector('.fa');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        inp.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    });
+  });
+
+  /* ── tab switching ─────────────────────────────────────────── */
+  function showTab(id) {
+    var tab = document.querySelector('#dl-auth-tabs [data-bs-target="#' + id + '"]');
+    if (tab) new bootstrap.Tab(tab).show();
+  }
+  document.getElementById('dl-goto-register').addEventListener('click', function (e) {
+    e.preventDefault(); showTab('dl-register-pane');
+  });
+  document.getElementById('dl-goto-login').addEventListener('click', function (e) {
+    e.preventDefault(); showTab('dl-login-pane');
+  });
+
+  /* ── LOGIN ─────────────────────────────────────────────────── */
+  document.getElementById('dl-login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideAlert('dl-login-alert');
+    var btn = document.getElementById('dl-login-btn');
+    var email = this.email.value.trim();
+    var password = this.password.value;
+    if (!email || !password) {
+      showAlert('dl-login-alert', lang === 'ar' ? 'يرجى إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter your email and password');
+      return;
+    }
+    setLoading(btn, true);
+    frappe.call({
+      method: 'dlshop.api.auth.login_customer',
+      args: { email: email, password: password, redirect_to: redirectTo },
+      callback: function (r) {
+        setLoading(btn, false);
+        if (r.message && r.message.success) {
+          window.location.href = r.message.redirect || redirectTo;
+        } else {
+          showAlert('dl-login-alert', (r.message && r.message.message) || (lang === 'ar' ? 'بيانات الدخول غير صحيحة' : 'Invalid email or password'));
+        }
+      },
+      error: function () {
+        setLoading(btn, false);
+        showAlert('dl-login-alert', lang === 'ar' ? 'حدث خطأ، حاول مجدداً' : 'An error occurred. Please try again.');
+      }
+    });
+  });
+
+  /* ── REGISTER ──────────────────────────────────────────────── */
+  document.getElementById('dl-register-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideAlert('dl-register-alert');
+    var btn = document.getElementById('dl-register-btn');
+    var f = this;
+    var pwd = f.password.value;
+    var cpwd = f.confirm_password.value;
+
+    if (pwd !== cpwd) {
+      showAlert('dl-register-alert', lang === 'ar' ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match');
+      return;
+    }
+    if (pwd.length < 6) {
+      showAlert('dl-register-alert', lang === 'ar' ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' : 'Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(btn, true);
+    frappe.call({
+      method: 'dlshop.api.auth.register_customer',
+      args: {
+        full_name: f.full_name.value.trim(),
+        email: f.email.value.trim(),
+        phone: f.phone.value.trim(),
+        password: pwd,
+        confirm_password: cpwd,
+        address_line1: f.address_line1 ? f.address_line1.value.trim() : '',
+        city: f.city ? f.city.value.trim() : '',
+        country: f.country ? f.country.value : 'Saudi Arabia',
+      },
+      callback: function (r) {
+        setLoading(btn, false);
+        if (r.message && r.message.success) {
+          dlshopToast(lang === 'ar' ? 'تم إنشاء حسابك بنجاح!' : 'Account created successfully!', 'success');
+          setTimeout(function () { window.location.href = '/account/' + lang; }, 800);
+        } else {
+          showAlert('dl-register-alert', (r.message && r.message.message) || (lang === 'ar' ? 'فشل إنشاء الحساب' : 'Registration failed'));
+        }
+      },
+      error: function () {
+        setLoading(btn, false);
+        showAlert('dl-register-alert', lang === 'ar' ? 'حدث خطأ، حاول مجدداً' : 'An error occurred. Please try again.');
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

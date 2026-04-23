@@ -1,0 +1,70 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'حسابي' if _lang == 'ar' else 'My Account' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container-xl py-4">
+  <h1 class="mb-4">{{ 'مرحباً، ' if _lang == 'ar' else 'Welcome, ' }}{{ full_name }}</h1>
+
+  {# Account quick links #}
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+      <a href="/account/orders/{{ _lang }}" class="card border-0 shadow-sm text-decoration-none dl-account-card text-center p-4">
+        <i class="fa fa-box fa-2x text-primary mb-2"></i>
+        <div class="fw-semibold">{{ 'طلباتي' if _lang == 'ar' else 'My Orders' }}</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="/account/wishlist/{{ _lang }}" class="card border-0 shadow-sm text-decoration-none dl-account-card text-center p-4">
+        <i class="fa fa-heart fa-2x text-danger mb-2"></i>
+        <div class="fw-semibold">{{ 'قائمة الرغبات' if _lang == 'ar' else 'Wishlist' }}</div>
+        {% if wishlist_count %}<small class="text-muted">({{ wishlist_count }})</small>{% endif %}
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="/account/addresses/{{ _lang }}" class="card border-0 shadow-sm text-decoration-none dl-account-card text-center p-4">
+        <i class="fa fa-map-marker-alt fa-2x text-success mb-2"></i>
+        <div class="fw-semibold">{{ 'عناويني' if _lang == 'ar' else 'Addresses' }}</div>
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="/account/profile/{{ _lang }}" class="card border-0 shadow-sm text-decoration-none dl-account-card text-center p-4">
+        <i class="fa fa-user-edit fa-2x text-secondary mb-2"></i>
+        <div class="fw-semibold">{{ 'بياناتي' if _lang == 'ar' else 'Profile' }}</div>
+      </a>
+    </div>
+  </div>
+
+  {# Recent Orders #}
+  {% if recent_orders %}
+  <h4 class="mb-3">{{ 'آخر الطلبات' if _lang == 'ar' else 'Recent Orders' }}</h4>
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>{{ 'رقم الطلب' if _lang == 'ar' else 'Order #' }}</th>
+            <th>{{ 'التاريخ' if _lang == 'ar' else 'Date' }}</th>
+            <th>{{ 'الإجمالي' if _lang == 'ar' else 'Total' }}</th>
+            <th>{{ 'الحالة' if _lang == 'ar' else 'Status' }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in recent_orders %}
+          <tr>
+            <td><code>{{ o.name }}</code></td>
+            <td>{{ o.transaction_date }}</td>
+            <td class="fw-semibold">{{ o.currency }} {{ '{:,.2f}'.format(o.grand_total) }}</td>
+            <td><span class="badge {{ 'bg-success' if o.status in ['Completed', 'To Deliver'] else 'bg-warning text-dark' if o.status == 'To Deliver and Bill' else 'bg-secondary' }}">{{ o.status }}</span></td>
+            <td><a href="/account/order/{{ o.name }}/{{ _lang }}" class="btn btn-sm btn-outline-primary">{{ 'عرض' if _lang == 'ar' else 'View' }}</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <a href="/account/orders/{{ _lang }}" class="btn btn-outline-primary">{{ 'كل الطلبات' if _lang == 'ar' else 'All Orders' }}</a>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{
+ "actions": [],
+ "creation": "2024-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["image", "alt_text_en", "alt_text_ar", "sort_order"],
+ "fields": [
+  {"fieldname": "image", "fieldtype": "Attach Image", "label": "Image", "in_list_view": 1},
+  {"fieldname": "alt_text_en", "fieldtype": "Data", "label": "Alt Text (EN)", "in_list_view": 1},
+  {"fieldname": "alt_text_ar", "fieldtype": "Data", "label": "النص البديل (AR)"},
+  {"fieldname": "sort_order", "fieldtype": "Int", "label": "Sort Order", "default": "0", "in_list_view": 1}
+ ],
+ "istable": 1,
+ "modified": "2024-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dlshop",
+ "name": "DL Shop Item Image",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "sort_order",
+ "sort_order": "ASC"
+}

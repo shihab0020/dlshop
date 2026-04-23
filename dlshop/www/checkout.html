@@ -1,0 +1,222 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'إتمام الطلب' if _lang == 'ar' else 'Checkout' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container-xl py-4">
+  <h1 class="mb-4">{{ 'إتمام الطلب' if _lang == 'ar' else 'Checkout' }}</h1>
+
+  {# Checkout steps indicator #}
+  <div class="dl-steps d-flex align-items-center gap-2 mb-5">
+    <div class="dl-step active" data-step="1"><span class="dl-step-num">1</span><span class="dl-step-label">{{ 'الاستلام' if _lang == 'ar' else 'Fulfillment' }}</span></div>
+    <div class="dl-step-line flex-grow-1"></div>
+    <div class="dl-step" data-step="2"><span class="dl-step-num">2</span><span class="dl-step-label">{{ 'الشحن' if _lang == 'ar' else 'Shipping' }}</span></div>
+    <div class="dl-step-line flex-grow-1"></div>
+    <div class="dl-step" data-step="3"><span class="dl-step-num">3</span><span class="dl-step-label">{{ 'الدفع' if _lang == 'ar' else 'Payment' }}</span></div>
+    <div class="dl-step-line flex-grow-1"></div>
+    <div class="dl-step" data-step="4"><span class="dl-step-num">4</span><span class="dl-step-label">{{ 'التأكيد' if _lang == 'ar' else 'Confirm' }}</span></div>
+  </div>
+
+  <div class="row g-4">
+    {# ===================== Left: Checkout Form ===================== #}
+    <div class="col-12 col-lg-7" id="dl-checkout-main">
+      <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+    </div>
+
+    {# ===================== Right: Order Summary ===================== #}
+    <div class="col-12 col-lg-5">
+      <div class="card border-0 shadow-sm sticky-top" style="top: 90px;">
+        <div class="card-body">
+          <h5 class="card-title mb-3">{{ 'ملخص الطلب' if _lang == 'ar' else 'Order Summary' }}</h5>
+          <div id="dl-order-items" class="mb-3"></div>
+          <hr />
+          <div id="dl-order-totals"></div>
+          <hr />
+          <div class="d-flex justify-content-between fw-bold fs-5">
+            <span>{{ 'الإجمالي النهائي' if _lang == 'ar' else 'Grand Total' }}</span>
+            <span id="dl-order-grand-total" class="text-primary"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ==================== Step Templates ==================== #}
+
+{# Step 1: Fulfillment method + Address or Pickup location #}
+<template id="tpl-step-1">
+  {# Fulfillment method selector (shown if pickup is enabled) #}
+  <div class="card border-0 shadow-sm mb-3" id="dl-fulfillment-card">
+    <div class="card-body">
+      <h5 class="card-title">{{ '1. طريقة الاستلام' if _lang == 'ar' else '1. How would you like to receive your order?' }}</h5>
+      <div class="row g-3" id="dl-fulfillment-btns">
+        <div class="col-6">
+          <div class="dl-fulfill-option card text-center p-3 cursor-pointer border-2 border-primary selected" data-type="delivery" id="btn-delivery">
+            <i class="fa fa-truck fa-2x mb-2" style="color:var(--dl-primary)"></i>
+            <div class="fw-semibold">{{ 'توصيل' if _lang == 'ar' else 'Delivery' }}</div>
+            <div class="small text-muted">{{ 'توصيل لباب المنزل' if _lang == 'ar' else 'Ship to your address' }}</div>
+          </div>
+        </div>
+        <div class="col-6" id="dl-pickup-tab-col" style="display:none;">
+          <div class="dl-fulfill-option card text-center p-3 cursor-pointer border" data-type="pickup" id="btn-pickup">
+            <i class="fa fa-store fa-2x mb-2 text-muted"></i>
+            <div class="fw-semibold">{{ 'استلام من المتجر' if _lang == 'ar' else 'Store Pickup' }}</div>
+            <div class="small text-muted">{{ 'استلم طلبك مباشرة' if _lang == 'ar' else 'Pick up at our store' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Delivery section #}
+  <div id="dl-delivery-section">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ '2. معلومات الاتصال' if _lang == 'ar' else '2. Contact Information' }}</h5>
+        <div id="dl-guest-fields" style="display:none;">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">{{ 'الاسم الكامل *' if _lang == 'ar' else 'Full Name *' }}</label>
+              <input type="text" id="co-guest-name" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'البريد الإلكتروني *' if _lang == 'ar' else 'Email *' }}</label>
+              <input type="email" id="co-guest-email" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'رقم الجوال' if _lang == 'ar' else 'Phone' }}</label>
+              <input type="tel" id="co-guest-phone" class="form-control" />
+            </div>
+          </div>
+          <p class="small text-muted">{{ 'هل لديك حساب؟' if _lang == 'ar' else 'Have an account?' }} <a href="/auth/{{ _lang }}?redirect-to=/checkout/{{ _lang }}">{{ 'تسجيل الدخول' if _lang == 'ar' else 'Login' }}</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ '3. عنوان التوصيل' if _lang == 'ar' else '3. Delivery Address' }}</h5>
+        <div id="dl-saved-addresses" class="mb-3"></div>
+        <div id="dl-new-address-form">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">{{ 'عنوان السطر الأول *' if _lang == 'ar' else 'Address Line 1 *' }}</label>
+              <input type="text" id="co-addr1" class="form-control" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">{{ 'عنوان السطر الثاني' if _lang == 'ar' else 'Address Line 2' }}</label>
+              <input type="text" id="co-addr2" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'المدينة *' if _lang == 'ar' else 'City *' }}</label>
+              <input type="text" id="co-city" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'المنطقة / المحافظة' if _lang == 'ar' else 'State / Region' }}</label>
+              <input type="text" id="co-state" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'الدولة' if _lang == 'ar' else 'Country' }}</label>
+              <input type="text" id="co-country" class="form-control" value="{{ 'Saudi Arabia' }}" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'الرمز البريدي' if _lang == 'ar' else 'Postal Code' }}</label>
+              <input type="text" id="co-pincode" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'رقم الجوال' if _lang == 'ar' else 'Phone' }}</label>
+              <input type="tel" id="co-phone" class="form-control" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Pickup location section #}
+  <div id="dl-pickup-section" style="display:none;">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ '2. اختر موقع الاستلام' if _lang == 'ar' else '2. Select Pickup Location' }}</h5>
+        <div id="dl-pickup-locations" class="row g-3">
+          <div class="col-12 text-center py-4"><div class="spinner-border text-primary spinner-border-sm"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary w-100" id="dl-next-step-1">
+    {{ 'التالي' if _lang == 'ar' else 'Next' }} <i class="fa fa-arrow-{{ 'left' if _lang == 'ar' else 'right' }} ms-2"></i>
+  </button>
+</template>
+
+{# Step 2: Shipping (delivery only) #}
+<template id="tpl-step-2">
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ '3. طريقة الشحن' if _lang == 'ar' else '3. Shipping Method' }}</h5>
+      <div id="dl-shipping-options" class="dl-radio-cards"></div>
+      <button class="btn btn-primary mt-4 w-100" id="dl-next-step-2">
+        {{ 'التالي: طريقة الدفع' if _lang == 'ar' else 'Next: Payment' }} <i class="fa fa-arrow-{{ 'left' if _lang == 'ar' else 'right' }} ms-2"></i>
+      </button>
+      <button class="btn btn-link mt-2 w-100 text-muted" id="dl-back-step-2">
+        <i class="fa fa-arrow-{{ 'right' if _lang == 'ar' else 'left' }} me-1"></i>{{ 'السابق' if _lang == 'ar' else 'Back' }}
+      </button>
+    </div>
+  </div>
+</template>
+
+{# Step 3: Payment #}
+<template id="tpl-step-3">
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ '4. طريقة الدفع' if _lang == 'ar' else '4. Payment Method' }}</h5>
+      <div id="dl-payment-options" class="dl-radio-cards"></div>
+
+      <div class="mt-3">
+        <label class="form-label">{{ 'ملاحظات الطلب (اختياري)' if _lang == 'ar' else 'Order Notes (optional)' }}</label>
+        <textarea id="co-notes" class="form-control" rows="3" placeholder="{{ 'أي تعليمات خاصة...' if _lang == 'ar' else 'Any special instructions...' }}"></textarea>
+      </div>
+
+      <button class="btn btn-success mt-4 w-100 btn-lg fw-bold" id="dl-place-order-btn">
+        <i class="fa fa-check-circle me-2"></i>{{ 'تأكيد الطلب' if _lang == 'ar' else 'Place Order' }}
+      </button>
+      <button class="btn btn-link mt-2 w-100 text-muted" id="dl-back-step-3">
+        <i class="fa fa-arrow-{{ 'right' if _lang == 'ar' else 'left' }} me-1"></i>{{ 'السابق' if _lang == 'ar' else 'Back' }}
+      </button>
+    </div>
+  </div>
+</template>
+
+{# Step 4: Success #}
+<template id="tpl-step-4">
+  <div class="card border-0 shadow-sm text-center py-5">
+    <div class="card-body">
+      <div class="dl-success-icon mb-4">
+        <i class="fa fa-check-circle text-success" style="font-size: 5rem;"></i>
+      </div>
+      <h2 class="text-success mb-2">{{ 'تم استلام طلبك!' if _lang == 'ar' else 'Order Placed!' }}</h2>
+      <p class="text-muted mb-1">{{ 'رقم الطلب:' if _lang == 'ar' else 'Order ID:' }} <strong id="dl-order-id"></strong></p>
+      <p class="text-muted mb-2" id="dl-success-fulfillment"></p>
+      <p class="text-muted mb-4">{{ 'سنرسل لك تأكيدًا عبر البريد الإلكتروني.' if _lang == 'ar' else "We'll send you a confirmation email shortly." }}</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="/account/orders/{{ _lang }}" class="btn btn-primary">{{ 'تتبع طلبي' if _lang == 'ar' else 'Track My Order' }}</a>
+        <a href="/shop/{{ _lang }}" class="btn btn-outline-secondary">{{ 'مواصلة التسوق' if _lang == 'ar' else 'Continue Shopping' }}</a>
+      </div>
+    </div>
+  </div>
+</template>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+var dlCheckoutConfig = {
+  lang: '{{ _lang }}',
+  rtl: {{ 'true' if is_rtl(_lang) else 'false' }},
+  isGuest: {{ 'true' if frappe.session.user == "Guest" else 'false' }},
+  currency: '{{ shop_settings.default_currency or "SAR" }}',
+};
+</script>
+<script src="/assets/dlshop/js/checkout.js?v=2"></script>
+{% endblock %}

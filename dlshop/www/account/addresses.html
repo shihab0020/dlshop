@@ -1,0 +1,138 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'عناويني' if _lang == 'ar' else 'My Addresses' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container-xl py-4" style="max-width: 860px;">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center gap-3">
+      <a href="/account/{{ _lang }}" class="text-muted"><i class="fa fa-arrow-{{ 'right' if _lang == 'ar' else 'left' }}"></i></a>
+      <h1 class="mb-0">{{ 'عناويني' if _lang == 'ar' else 'My Addresses' }}</h1>
+    </div>
+    <button class="btn btn-primary" id="dl-add-address-btn">
+      <i class="fa fa-plus me-1"></i>{{ 'إضافة عنوان' if _lang == 'ar' else 'Add Address' }}
+    </button>
+  </div>
+
+  <div id="dl-addresses-list" class="row g-3 mb-4">
+    <div class="col-12 text-center py-4"><div class="spinner-border text-primary"></div></div>
+  </div>
+
+  {# Add/Edit Address Form (hidden initially) #}
+  <div class="card border-0 shadow-sm d-none" id="dl-address-form-card">
+    <div class="card-body">
+      <h5 class="card-title" id="dl-addr-form-title">{{ 'إضافة عنوان جديد' if _lang == 'ar' else 'Add New Address' }}</h5>
+      <form id="dl-address-form">
+        <input type="hidden" id="addr-name" />
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">{{ 'وصف العنوان *' if _lang == 'ar' else 'Address Title *' }}</label>
+            <input type="text" id="addr-title" class="form-control" placeholder="{{ 'مثال: المنزل، العمل' if _lang == 'ar' else 'e.g. Home, Office' }}" required />
+          </div>
+          <div class="col-12">
+            <label class="form-label">{{ 'العنوان (السطر الأول) *' if _lang == 'ar' else 'Address Line 1 *' }}</label>
+            <input type="text" id="addr-line1" class="form-control" required />
+          </div>
+          <div class="col-12">
+            <label class="form-label">{{ 'العنوان (السطر الثاني)' if _lang == 'ar' else 'Address Line 2' }}</label>
+            <input type="text" id="addr-line2" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">{{ 'المدينة *' if _lang == 'ar' else 'City *' }}</label>
+            <input type="text" id="addr-city" class="form-control" required />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">{{ 'المنطقة' if _lang == 'ar' else 'State / Region' }}</label>
+            <input type="text" id="addr-state" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">{{ 'الدولة' if _lang == 'ar' else 'Country' }}</label>
+            <input type="text" id="addr-country" class="form-control" value="{{ 'المملكة العربية السعودية' if _lang == 'ar' else 'Saudi Arabia' }}" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">{{ 'رقم الجوال' if _lang == 'ar' else 'Phone' }}</label>
+            <input type="tel" id="addr-phone" class="form-control" />
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary">{{ 'حفظ العنوان' if _lang == 'ar' else 'Save Address' }}</button>
+          <button type="button" class="btn btn-outline-secondary" id="dl-cancel-address">{{ 'إلغاء' if _lang == 'ar' else 'Cancel' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function() {
+  var lang = '{{ _lang }}';
+  function loadAddresses() {
+    frappe.call({ method: 'dlshop.api.checkout.get_checkout_data',
+      callback: function(r) {
+        var addrs = r.message?.addresses || [];
+        var el = document.getElementById('dl-addresses-list');
+        if (!addrs.length) {
+          el.innerHTML = '<div class="col-12 text-center py-4 text-muted"><i class="fa fa-map-marker-alt fa-2x mb-2 d-block"></i>{{ "لا توجد عناوين محفوظة" if _lang=="ar" else "No saved addresses" }}</div>';
+          return;
+        }
+        el.innerHTML = addrs.map(function(a) {
+          return '<div class="col-12 col-md-6"><div class="card border shadow-sm h-100"><div class="card-body"><p class="fw-semibold mb-1">' + a.address_title + ' <span class="badge bg-light text-muted">' + a.address_type + '</span></p>' +
+            '<p class="text-muted small mb-2">' + [a.address_line1, a.address_line2, a.city, a.state, a.country].filter(Boolean).join(', ') + '</p>' +
+            (a.phone ? '<p class="small mb-2"><i class="fa fa-phone me-1"></i>' + a.phone + '</p>' : '') +
+            '<button class="btn btn-sm btn-outline-secondary" onclick="dlEditAddress(\'' + a.name + '\',\'' + a.address_title + '\',\'' + a.address_line1 + '\',\'' + (a.address_line2||'') + '\',\'' + (a.city||'') + '\',\'' + (a.state||'') + '\',\'' + (a.country||'') + '\',\'' + (a.phone||'') + '\')">{{ "تعديل" if _lang=="ar" else "Edit" }}</button>' +
+            '</div></div></div>';
+        }).join('');
+      }
+    });
+  }
+  window.dlEditAddress = function(name, title, l1, l2, city, state, country, phone) {
+    document.getElementById('addr-name').value = name;
+    document.getElementById('addr-title').value = title;
+    document.getElementById('addr-line1').value = l1;
+    document.getElementById('addr-line2').value = l2;
+    document.getElementById('addr-city').value = city;
+    document.getElementById('addr-state').value = state;
+    document.getElementById('addr-country').value = country;
+    document.getElementById('addr-phone').value = phone;
+    document.getElementById('dl-addr-form-title').textContent = lang==='ar' ? 'تعديل العنوان' : 'Edit Address';
+    document.getElementById('dl-address-form-card').classList.remove('d-none');
+    document.getElementById('dl-address-form-card').scrollIntoView({behavior:'smooth'});
+  };
+  document.getElementById('dl-add-address-btn').addEventListener('click', function() {
+    document.getElementById('dl-address-form')['.reset'] && document.getElementById('dl-address-form').reset();
+    document.getElementById('addr-name').value = '';
+    document.getElementById('dl-addr-form-title').textContent = lang==='ar' ? 'إضافة عنوان جديد' : 'Add New Address';
+    document.getElementById('dl-address-form-card').classList.remove('d-none');
+    document.getElementById('dl-address-form-card').scrollIntoView({behavior:'smooth'});
+  });
+  document.getElementById('dl-cancel-address').addEventListener('click', function() {
+    document.getElementById('dl-address-form-card').classList.add('d-none');
+  });
+  document.getElementById('dl-address-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    frappe.call({ method: 'dlshop.api.checkout.save_address',
+      args: {
+        address_name: document.getElementById('addr-name').value || null,
+        address_title: document.getElementById('addr-title').value,
+        address_line1: document.getElementById('addr-line1').value,
+        address_line2: document.getElementById('addr-line2').value,
+        city: document.getElementById('addr-city').value,
+        state: document.getElementById('addr-state').value,
+        country: document.getElementById('addr-country').value,
+        phone: document.getElementById('addr-phone').value,
+      },
+      callback: function(r) {
+        if (r.message?.success) {
+          document.getElementById('dl-address-form-card').classList.add('d-none');
+          dlshopToast(lang==='ar' ? 'تم حفظ العنوان' : 'Address saved', 'success');
+          loadAddresses();
+        }
+      }
+    });
+  });
+  document.addEventListener('DOMContentLoaded', loadAddresses);
+})();
+</script>
+{% endblock %}

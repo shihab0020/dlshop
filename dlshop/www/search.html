@@ -1,0 +1,47 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+{% from "dlshop/templates/macros/item_card.html" import item_card %}
+
+{% block title %}{{ title }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container-xl py-4">
+  {# Search bar (prominent) #}
+  <div class="dl-search-page-bar mb-5">
+    <form action="/search/{{ _lang }}" method="get" class="d-flex gap-2">
+      <input type="search" name="q" class="form-control form-control-lg" value="{{ q | e }}" placeholder="{{ 'ابحث عن أي منتج...' if _lang == 'ar' else 'Search for anything...' }}" autofocus />
+      <button type="submit" class="btn btn-primary btn-lg px-4"><i class="fa fa-search"></i></button>
+    </form>
+  </div>
+
+  {% if q %}
+  <h4 class="mb-1">{{ 'نتائج البحث عن:' if _lang == 'ar' else 'Results for:' }} <strong>{{ q | e }}</strong></h4>
+  <p class="text-muted mb-4" id="dl-search-count"></p>
+  <div id="dl-search-results" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+    <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+  </div>
+  <div id="dl-search-pagination" class="mt-4"></div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="fa fa-search fa-3x text-muted mb-3 d-block"></i>
+    <p class="text-muted">{{ 'ابدأ بكتابة اسم المنتج للبحث' if _lang == 'ar' else 'Start typing to search for products' }}</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+var dlSearchConfig = {
+  lang: '{{ _lang }}',
+  q: '{{ q | e }}',
+  currency: '{{ shop_settings.default_currency or "SAR" }}',
+};
+</script>
+<script src="/assets/dlshop/js/shop.js?v=9"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (!dlSearchConfig.q) return;
+  dlLoadProducts({ search: dlSearchConfig.q, container: '#dl-search-results', paginationContainer: '#dl-search-pagination', countContainer: '#dl-search-count' });
+});
+</script>
+{% endblock %}

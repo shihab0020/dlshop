@@ -1,0 +1,20 @@
+{
+ "actions": [],
+ "creation": "2024-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["label_en", "label_ar", "value_en", "value_ar"],
+ "fields": [
+  {"fieldname": "label_en", "fieldtype": "Data", "label": "Label (EN)", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "label_ar", "fieldtype": "Data", "label": "التسمية (AR)", "in_list_view": 1},
+  {"fieldname": "value_en", "fieldtype": "Data", "label": "Value (EN)", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "value_ar", "fieldtype": "Data", "label": "القيمة (AR)", "in_list_view": 1}
+ ],
+ "istable": 1,
+ "modified": "2024-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dlshop",
+ "name": "DL Shop Item Specification",
+ "owner": "Administrator",
+ "permissions": []
+}

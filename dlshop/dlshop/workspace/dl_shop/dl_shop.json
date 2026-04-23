@@ -1,0 +1,238 @@
+{
+ "app": "dlshop",
+ "charts": [],
+ "content": "[{\"id\":\"dlshop_hdr\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>DL Shop</b></span>\",\"col\":12}},{\"id\":\"dlshop_c1\",\"type\":\"card\",\"data\":{\"card_name\":\"Catalog\",\"col\":4}},{\"id\":\"dlshop_c2\",\"type\":\"card\",\"data\":{\"card_name\":\"Orders\",\"col\":4}},{\"id\":\"dlshop_c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Payments\",\"col\":4}},{\"id\":\"dlshop_sp\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"dlshop_c4\",\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}}]",
+ "creation": "2025-01-01 00:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "store",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "DL Shop",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Catalog",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Item",
+   "link_count": 0,
+   "link_to": "DL Shop Item",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Category",
+   "link_count": 0,
+   "link_to": "DL Shop Category",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Banner",
+   "link_count": 0,
+   "link_to": "DL Shop Banner",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Coupon",
+   "link_count": 0,
+   "link_to": "DL Shop Coupon",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Orders",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Cart",
+   "link_count": 0,
+   "link_to": "DL Shop Cart",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Review",
+   "link_count": 0,
+   "link_to": "DL Shop Review",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Newsletter Subscriber",
+   "link_count": 0,
+   "link_to": "DL Shop Newsletter Subscriber",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Wishlist Item",
+   "link_count": 0,
+   "link_to": "DL Shop Wishlist Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Payments",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Tabby Log",
+   "link_count": 0,
+   "link_to": "DL Tabby Log",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Tabby Settings",
+   "link_count": 0,
+   "link_to": "DL Tabby Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Settings",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Settings",
+   "link_count": 0,
+   "link_to": "DL Shop Settings",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Pickup Location",
+   "link_count": 0,
+   "link_to": "DL Shop Pickup Location",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Navigation Item",
+   "link_count": 0,
+   "link_to": "DL Shop Navigation Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "DL Shop Footer Section",
+   "link_count": 0,
+   "link_to": "DL Shop Footer Section",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dlshop",
+ "name": "DL Shop",
+ "owner": "Administrator",
+ "public": 1,
+ "restrict_to_domain": "",
+ "roles": [],
+ "sequence_id": 1.0,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "label": "DL Shop Item",
+   "link_to": "DL Shop Item",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "label": "DL Shop Cart",
+   "link_to": "DL Shop Cart",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "label": "DL Tabby Log",
+   "link_to": "DL Tabby Log",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "label": "DL Shop Settings",
+   "link_to": "DL Shop Settings",
+   "type": "DocType"
+  }
+ ]
+}

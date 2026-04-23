@@ -1,0 +1,39 @@
+{
+ "actions": [],
+ "creation": "2024-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "key_id", "column_break1", "key_secret",
+  "section_break2",
+  "merchant_code", "column_break3", "is_test_mode",
+  "section_break_urls",
+  "success_url", "column_break_urls2", "failure_url",
+  "section_break_urls3",
+  "cancel_url"
+ ],
+ "fields": [
+  {"fieldname": "key_id", "fieldtype": "Data", "label": "Public Key (key_id)", "reqd": 1, "description": "Your Tabby public API key"},
+  {"fieldname": "column_break1", "fieldtype": "Column Break"},
+  {"fieldname": "key_secret", "fieldtype": "Password", "label": "Secret Key", "reqd": 1, "description": "Your Tabby secret API key"},
+  {"fieldname": "section_break2", "fieldtype": "Section Break"},
+  {"fieldname": "merchant_code", "fieldtype": "Data", "label": "Merchant Code", "reqd": 1},
+  {"fieldname": "column_break3", "fieldtype": "Column Break"},
+  {"fieldname": "is_test_mode", "fieldtype": "Check", "label": "Test Mode", "default": "1", "description": "Use Tabby sandbox/test environment"},
+  {"fieldname": "section_break_urls", "fieldtype": "Section Break", "label": "Redirect URLs", "description": "Leave blank to auto-generate from current site URL"},
+  {"fieldname": "success_url", "fieldtype": "Data", "label": "Success URL", "options": "URL"},
+  {"fieldname": "column_break_urls2", "fieldtype": "Column Break"},
+  {"fieldname": "failure_url", "fieldtype": "Data", "label": "Failure URL", "options": "URL"},
+  {"fieldname": "section_break_urls3", "fieldtype": "Section Break"},
+  {"fieldname": "cancel_url", "fieldtype": "Data", "label": "Cancel URL", "options": "URL"}
+ ],
+ "issingle": 1,
+ "modified": "2024-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dlshop",
+ "name": "DL Tabby Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1}
+ ]
+}

@@ -1,258 +1,134 @@
 app_name = "dlshop"
 app_title = "Dlits Shop"
 app_publisher = "shihab0020"
-app_description = "Dlits Shpping Cart and Online App"
+app_description = "Dlits Shopping Cart and Online App"
 app_email = "shihab0020@gmail.com"
 app_license = "mit"
 
-# Apps
+# Website Generators
 # ------------------
+# Auto-creates a page for each DL Shop Item record using its 'route' field
+website_generators = ["DL Shop Item"]
 
-# required_apps = []
+# Apps Screen
+add_to_apps_screen = [
+    {
+        "name": "dlshop",
+        "logo": "/assets/dlshop/images/logo.png",
+        "title": "Dlits Shop",
+        "route": "/shop",
+        "has_permission": "dlshop.utils.has_app_permission",
+    }
+]
 
-# Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "dlshop",
-# 		"logo": "/assets/dlshop/logo.png",
-# 		"title": "Dlits Shop",
-# 		"route": "/dlshop",
-# 		"has_permission": "dlshop.api.permission.has_app_permission"
-# 	}
-# ]
+# Web Assets — included directly in layout.html (Bootstrap 5 + dlshop)
+web_include_css = []
+web_include_js = []
 
-# Includes in <head>
-# ------------------
+# Desk Assets (ERPNext admin)
+app_include_css = ["/assets/dlshop/css/dlshop_desk.css"]
 
-# include js, css files in header of desk.html
-# app_include_css = "/assets/dlshop/css/dlshop.css"
-# app_include_js = "/assets/dlshop/js/dlshop.js"
+# Jinja Filters & Methods
+jinja = {
+    "methods": ["dlshop.utils"],
+    "filters": ["dlshop.utils.currency", "dlshop.utils.bilingual"],
+}
 
-# include js, css files in header of web template
-# web_include_css = "/assets/dlshop/css/dlshop.css"
-# web_include_js = "/assets/dlshop/js/dlshop.js"
-
-# include custom scss in every website theme (without file extension ".scss")
-# website_theme_scss = "dlshop/public/scss/website"
-
-# include js, css files in header of web form
-# webform_include_js = {"doctype": "public/js/doctype.js"}
-# webform_include_css = {"doctype": "public/css/doctype.css"}
-
-# include js in page
-# page_js = {"page" : "public/js/file.js"}
-
-# include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
-# doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
-# doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
-
-# Svg Icons
-# ------------------
-# include app icons in desk
-# app_include_icons = "dlshop/public/icons.svg"
-
-# Home Pages
-# ----------
-
-# application home page (will override Website Settings)
-# home_page = "login"
-
-# website user home page (by Role)
-# role_home_page = {
-# 	"Role": "home_page"
-# }
-
-# Generators
-# ----------
-
-# automatically create page for each record of this doctype
-# website_generators = ["Web Page"]
-
-# automatically load and sync documents of this doctype from downstream apps
-# importable_doctypes = [doctype_1]
-
-# Jinja
-# ----------
-
-# add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "dlshop.utils.jinja_methods",
-# 	"filters": "dlshop.utils.jinja_filters"
-# }
+# Fixtures — export/import app-bundled records
+fixtures = [
+    {"dt": "Workspace", "filters": [["name", "=", "DL Shop"]]}
+]
 
 # Installation
-# ------------
-
-# before_install = "dlshop.install.before_install"
-# after_install = "dlshop.install.after_install"
-
-# Uninstallation
-# ------------
-
-# before_uninstall = "dlshop.uninstall.before_uninstall"
-# after_uninstall = "dlshop.uninstall.after_uninstall"
-
-# Integration Setup
-# ------------------
-# To set up dependencies/integrations with other apps
-# Name of the app being installed is passed as an argument
-
-# before_app_install = "dlshop.utils.before_app_install"
-# after_app_install = "dlshop.utils.after_app_install"
-
-# Integration Cleanup
-# -------------------
-# To clean up dependencies/integrations with other apps
-# Name of the app being uninstalled is passed as an argument
-
-# before_app_uninstall = "dlshop.utils.before_app_uninstall"
-# after_app_uninstall = "dlshop.utils.after_app_uninstall"
-
-# Build
-# ------------------
-# To hook into the build process
-
-# after_build = "dlshop.build.after_build"
-
-# Desk Notifications
-# ------------------
-# See frappe.core.notifications.get_notification_config
-
-# notification_config = "dlshop.notifications.get_notification_config"
-
-# Permissions
-# -----------
-# Permissions evaluated in scripted ways
-
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+after_install = "dlshop.install.after_install"
 
 # Document Events
-# ---------------
-# Hook on document methods and events
-
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "Sales Order": {
+        "on_submit": "dlshop.api.cart.on_sales_order_submit",
+    },
+}
 
 # Scheduled Tasks
-# ---------------
+scheduler_events = {
+    "daily": [
+        "dlshop.tasks.cleanup_expired_carts",
+        "dlshop.tasks.cleanup_expired_coupons",
+    ],
+}
 
-# scheduler_events = {
-# 	"all": [
-# 		"dlshop.tasks.all"
-# 	],
-# 	"daily": [
-# 		"dlshop.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"dlshop.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"dlshop.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"dlshop.tasks.monthly"
-# 	],
-# }
+# Bilingual Website Route Rules
+# Pattern: /{page}/{lang} and /{page}/{lang}/{rest}
+# e.g.  /shop/ar  →  shop  (Arabic)
+#        /shop/en  →  shop  (English)
+website_route_rules = [
+    # Product detail pages — static lang segment so these beat /shop/en/<path:category>
+    {"from_route": "/shop/en/product/<path:item_route>", "to_route": "product"},
+    {"from_route": "/shop/ar/product/<path:item_route>", "to_route": "product"},
+    # Tabby payment return
+    {"from_route": "/tabby-return", "to_route": "tabby_return"},
+    # Shop (must come before generic category catch-all)
+    {"from_route": "/shop/ar", "to_route": "shop"},
+    {"from_route": "/shop/en", "to_route": "shop"},
+    {"from_route": "/shop/ar/<path:category>", "to_route": "shop"},
+    {"from_route": "/shop/en/<path:category>", "to_route": "shop"},
+    # Cart
+    {"from_route": "/cart/ar", "to_route": "cart"},
+    {"from_route": "/cart/en", "to_route": "cart"},
+    # Checkout
+    {"from_route": "/checkout/ar", "to_route": "checkout"},
+    {"from_route": "/checkout/en", "to_route": "checkout"},
+    # Search
+    {"from_route": "/search/ar", "to_route": "search"},
+    {"from_route": "/search/en", "to_route": "search"},
+    # Account
+    {"from_route": "/account/ar", "to_route": "account"},
+    {"from_route": "/account/en", "to_route": "account"},
+    {"from_route": "/account/orders/ar", "to_route": "account/orders"},
+    {"from_route": "/account/orders/en", "to_route": "account/orders"},
+    {"from_route": "/account/order/<name>/ar", "to_route": "account/order"},
+    {"from_route": "/account/order/<name>/en", "to_route": "account/order"},
+    {"from_route": "/account/wishlist/ar", "to_route": "account/wishlist"},
+    {"from_route": "/account/wishlist/en", "to_route": "account/wishlist"},
+    {"from_route": "/account/addresses/ar", "to_route": "account/addresses"},
+    {"from_route": "/account/addresses/en", "to_route": "account/addresses"},
+    {"from_route": "/account/profile/ar", "to_route": "account/profile"},
+    {"from_route": "/account/profile/en", "to_route": "account/profile"},
+    # Auth (login + register combined page)
+    {"from_route": "/auth/ar", "to_route": "auth"},
+    {"from_route": "/auth/en", "to_route": "auth"},
+    # Plain /account/order/<name> (no lang suffix)
+    {"from_route": "/account/order/<name>", "to_route": "account/order"},
+    # Generic category (no lang suffix, backward-compat)
+    {"from_route": "/shop/<path:category>", "to_route": "shop"},
+]
 
-# Testing
-# -------
+# Override Website Context
+override_whitelisted_methods = {}
 
-# before_tests = "dlshop.install.before_tests"
+# Permissions
+permission_query_conditions = {
+    "DL Shop Cart": "dlshop.api.cart.get_cart_permission_query",
+    "DL Shop Review": "dlshop.api.shop.get_review_permission_query",
+    "DL Shop Wishlist Item": "dlshop.api.account.get_wishlist_permission_query",
+    "DL Shop Newsletter Subscriber": "dlshop.api.account.get_newsletter_permission_query",
+}
 
-# Extend DocType Class
-# ------------------------------
-#
-# Specify custom mixins to extend the standard doctype controller.
-# extend_doctype_class = {
-# 	"Task": "dlshop.custom.task.CustomTaskMixin"
-# }
-
-# Overriding Methods
-# ------------------------------
-#
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "dlshop.event.get_events"
-# }
-#
-# each overriding function accepts a `data` argument;
-# generated from the base implementation of the doctype dashboard,
-# along with any modifications made in other Frappe apps
-# override_doctype_dashboards = {
-# 	"Task": "dlshop.task.get_dashboard_data"
-# }
-
-# exempt linked doctypes from being automatically cancelled
-#
-# auto_cancel_exempted_doctypes = ["Auto Repeat"]
-
-# Ignore links to specified DocTypes when deleting documents
-# -----------------------------------------------------------
-
-# ignore_links_on_delete = ["Communication", "ToDo"]
-
-# Request Events
-# ----------------
-# before_request = ["dlshop.utils.before_request"]
-# after_request = ["dlshop.utils.after_request"]
-
-# Job Events
-# ----------
-# before_job = ["dlshop.utils.before_job"]
-# after_job = ["dlshop.utils.after_job"]
-
-# User Data Protection
-# --------------------
-
-# user_data_fields = [
-# 	{
-# 		"doctype": "{doctype_1}",
-# 		"filter_by": "{filter_by}",
-# 		"redact_fields": ["{field_1}", "{field_2}"],
-# 		"partial": 1,
-# 	},
-# 	{
-# 		"doctype": "{doctype_2}",
-# 		"filter_by": "{filter_by}",
-# 		"partial": 1,
-# 	},
-# 	{
-# 		"doctype": "{doctype_3}",
-# 		"strict": False,
-# 	},
-# 	{
-# 		"doctype": "{doctype_4}"
-# 	}
-# ]
-
-# Authentication and authorization
-# --------------------------------
-
-# auth_hooks = [
-# 	"dlshop.auth.validate"
-# ]
-
-# Automatically update python controller files with type annotations for this app.
-# export_python_type_annotations = True
-
-# default_log_clearing_doctypes = {
-# 	"Logging DocType Name": 30  # days to retain logs
-# }
-
-# Translation
-# ------------
-# List of apps whose translatable strings should be excluded from this app's translations.
-# ignore_translatable_strings_from = []
-
+# User Data Protection (GDPR)
+user_data_fields = [
+    {
+        "doctype": "DL Shop Cart",
+        "filter_by": "owner",
+        "redact_fields": ["phone", "notes"],
+        "partial": 1,
+    },
+    {
+        "doctype": "DL Shop Wishlist Item",
+        "filter_by": "owner",
+    },
+    {
+        "doctype": "DL Shop Newsletter Subscriber",
+        "filter_by": "email",
+        "partial": 1,
+    },
+]

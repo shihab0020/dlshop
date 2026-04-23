@@ -1,0 +1,82 @@
+{%- macro item_card(item, lang='en', currency='SAR', show_add_to_cart=True) -%}
+{% set _rtl = lang == 'ar' %}
+{% set _name = item.web_item_name_ar if _rtl else item.web_item_name_en %}
+{% set _has_sale = item.is_on_sale and item.sale_price and item.price and item.sale_price < item.price %}
+<div class="dl-item-card card h-100 border-0" data-item-code="{{ item.item_code }}" data-route="{{ item.route }}">
+  <a href="/shop/{{ lang }}/product/{{ item.route }}" class="dl-card-img-wrap">
+    {% if item.featured_image %}
+    <img src="{{ item.featured_image }}" alt="{{ _name }}" class="card-img-top dl-card-img" loading="lazy" />
+    {% else %}
+    <div class="dl-card-img dl-no-img d-flex align-items-center justify-content-center bg-light"><i class="fa fa-image fa-2x text-muted"></i></div>
+    {% endif %}
+
+    {# Show only the single most relevant badge #}
+    {% if _has_sale %}
+    <span class="dl-card-badge dl-badge-sale">{{ 'خصم' if _rtl else 'Sale' }}</span>
+    {% elif item.is_new_arrival %}
+    <span class="dl-card-badge dl-badge-new">{{ 'جديد' if _rtl else 'New' }}</span>
+    {% elif item.badge_text_ar and _rtl %}
+    <span class="dl-card-badge dl-badge-custom">{{ item.badge_text_ar }}</span>
+    {% elif item.badge_text_en and not _rtl %}
+    <span class="dl-card-badge dl-badge-custom">{{ item.badge_text_en }}</span>
+    {% endif %}
+
+    <button class="dl-wishlist-btn" data-route="{{ item.route }}" aria-label="{{ 'أضف للمفضلة' if _rtl else 'Add to Wishlist' }}">
+      <i class="fa fa-heart"></i>
+    </button>
+  </a>
+
+  <div class="card-body dl-card-body">
+    <a href="/shop/{{ lang }}/product/{{ item.route }}" class="text-decoration-none">
+      <p class="dl-card-title">{{ _name }}</p>
+    </a>
+    <div class="dl-card-price">
+      {% if _has_sale %}
+      <span class="dl-price-sale">{{ item.sale_price | currency }}</span>
+      <span class="dl-price-orig">{{ item.price | currency }}</span>
+      {% else %}
+      <span class="dl-price">{{ (item.sale_price or item.price or 0) | currency if (item.sale_price or item.price) else ('السعر عند الاستفسار' if _rtl else 'Price on Request') }}</span>
+      {% endif %}
+    </div>
+    {% if show_add_to_cart %}
+    <button class="btn dl-add-to-cart-btn w-100 mt-2"
+            data-item-code="{{ item.item_code }}"
+            data-item-name="{{ _name }}">
+      <i class="fa fa-cart-plus"></i> {{ 'أضف للسلة' if _rtl else 'Add to Cart' }}
+    </button>
+    {% endif %}
+  </div>
+</div>
+{%- endmacro -%}
+
+{%- macro stars(rating, max=5) -%}
+<div class="dl-stars d-inline-flex gap-1" aria-label="{{ rating }}/{{ max }} stars">
+  {% for i in range(1, max+1) %}
+  <i class="fa{% if i <= rating %} fa-star{% elif i - rating < 1 %} fa-star-half-alt{% else %}-regular fa-star{% endif %} text-warning small"></i>
+  {% endfor %}
+</div>
+{%- endmacro -%}
+
+{%- macro pagination(current, total_pages, base_url) -%}
+{% if total_pages > 1 %}
+<nav aria-label="Pagination" class="mt-4">
+  <ul class="pagination justify-content-center flex-wrap gap-1">
+    <li class="page-item {% if current <= 1 %}disabled{% endif %}">
+      <a class="page-link" href="{{ base_url }}?page={{ current - 1 }}"><i class="fa fa-chevron-left"></i></a>
+    </li>
+    {% for p in range(1, total_pages+1) %}
+    {% if p == current or (p >= current-2 and p <= current+2) or p == 1 or p == total_pages %}
+    <li class="page-item {% if p == current %}active{% endif %}">
+      <a class="page-link" href="{{ base_url }}?page={{ p }}">{{ p }}</a>
+    </li>
+    {% elif p == current-3 or p == current+3 %}
+    <li class="page-item disabled"><span class="page-link">…</span></li>
+    {% endif %}
+    {% endfor %}
+    <li class="page-item {% if current >= total_pages %}disabled{% endif %}">
+      <a class="page-link" href="{{ base_url }}?page={{ current + 1 }}"><i class="fa fa-chevron-right"></i></a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+{%- endmacro -%}
