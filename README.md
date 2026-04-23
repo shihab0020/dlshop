@@ -51,7 +51,14 @@ DLShop is a **Frappe app** that adds a complete, production-ready online store f
 
 ## Screenshots
 
-> Add screenshots here after deployment.
+### Storefront — Home Page
+<img width="1140" alt="DLShop Home Page" src="https://github.com/user-attachments/assets/ac89b5ed-789b-4447-9bea-660f34a07322" />
+
+### Customer Dashboard
+<img width="1154" alt="Customer Dashboard" src="https://github.com/user-attachments/assets/881acdc6-d95e-4475-aa52-0a3d129de974" />
+
+### ERPNext — DL Shop Settings
+<img width="2305" alt="DL Shop Settings in ERPNext" src="https://github.com/user-attachments/assets/546359ba-ad56-4c14-be64-b46298773237" />
 
 ---
 
