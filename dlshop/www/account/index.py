@@ -19,10 +19,10 @@ def get_context(context):
         "Sales Order",
         filters={
             "customer": frappe.db.get_value("Customer", {"email_id": frappe.session.user}, "name") or "__none__",
-            "docstatus": 1,
+            "docstatus": ["in", [1, 2]],
         },
-        fields=["name", "transaction_date", "grand_total", "status", "currency"],
-        order_by="transaction_date desc",
+        fields=["name", "transaction_date", "grand_total", "status", "currency", "docstatus"],
+        order_by="creation desc",
         limit=5,
     )
     context.recent_orders = recent_orders

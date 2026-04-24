@@ -19,7 +19,7 @@ def get_orders(page=1, page_size=10):
         "Sales Order",
         filters={"customer": customer, "docstatus": ["in", [1, 2]]},
         fields=["name", "transaction_date", "grand_total", "status", "delivery_status", "currency", "docstatus"],
-        order_by="transaction_date desc",
+        order_by="creation desc",
         start=(page - 1) * page_size,
         page_length=page_size,
     )

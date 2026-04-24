@@ -88,6 +88,9 @@
   "address_en",
   "section_break_con4",
   "address_ar",
+  "section_break_tracking",
+  "enable_visitor_tracking",
+  "track_private_ips",
   "section_break_widget",
   "show_contact_widget",
   "contact_widget_label_en",
@@ -557,6 +560,26 @@
    "fieldname": "section_break_widget",
    "fieldtype": "Section Break",
    "label": "Contact Widget"
+  },
+  {
+   "fieldname": "section_break_tracking",
+   "fieldtype": "Section Break",
+   "label": "Visitor Tracking"
+  },
+  {
+   "fieldname": "enable_visitor_tracking",
+   "fieldtype": "Check",
+   "label": "Enable Visitor Tracking",
+   "default": "0",
+   "description": "Log page visits and order countries for analytics. Each unique IP is geo-looked up once per day via ip-api.com."
+  },
+  {
+   "fieldname": "track_private_ips",
+   "fieldtype": "Check",
+   "label": "Track Private / LAN / Loopback IPs",
+   "default": "0",
+   "depends_on": "enable_visitor_tracking",
+   "description": "When enabled, local addresses (127.x, 192.168.x, 10.x, ::1) are also logged. Useful for testing on a local network. Country lookup will return empty for private IPs."
   },
   {
    "fieldname": "show_contact_widget",

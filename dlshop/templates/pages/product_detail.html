@@ -213,7 +213,7 @@
                 <strong>{{ rev.owner.split('@')[0] if '@' in (rev.reviewer_name or rev.owner) else (rev.reviewer_name or rev.owner) }}</strong>
                 <span class="ms-2">{{ stars(rev.rating | float) }}</span>
               </div>
-              <small class="text-muted">{{ rev.creation[:10] }}</small>
+              <small class="text-muted">{{ (rev.creation | string)[:10] }}</small>
             </div>
             {% if rev.title %}<p class="fw-semibold mt-1 mb-1">{{ rev.title }}</p>{% endif %}
             <p class="mb-0 text-muted">{{ rev.review_text }}</p>
@@ -240,7 +240,7 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">{{ 'اسمك' if _lang == 'ar' else 'Your Name' }}</label>
-                <input type="text" name="reviewer_name" class="form-control" />
+                <input type="text" name="reviewer_name" class="form-control" value="{{ context.user_full_name }}" />
               </div>
               <div class="col-md-6">
                 <label class="form-label">{{ 'العنوان' if _lang == 'ar' else 'Title' }}</label>
@@ -345,20 +345,36 @@ stars.forEach((star, idx) => {
 document.getElementById('dl-review-form')?.addEventListener('submit', function(e) {
   e.preventDefault();
   const fd = new FormData(this);
+  const rating = fd.get('rating');
+  if (!rating) {
+    dlshopToast('{{ "يرجى اختيار تقييم بالنجوم" if _lang == "ar" else "Please select a star rating" }}', 'error');
+    return;
+  }
+  const submitBtn = this.querySelector('[type="submit"]');
+  submitBtn.disabled = true;
   frappe.call({
     method: 'dlshop.api.shop.submit_review',
     args: {
       item_route: this.dataset.route,
-      rating: fd.get('rating'),
+      rating: rating,
       title: fd.get('title'),
       review_text: fd.get('review_text'),
       reviewer_name: fd.get('reviewer_name'),
     },
     callback(r) {
+      submitBtn.disabled = false;
       if (r.message?.success) {
         dlshopToast(r.message.approved ? '{{ "تم نشر تقييمك" if _lang == "ar" else "Review published!" }}' : '{{ "سيتم مراجعة تقييمك" if _lang == "ar" else "Review submitted for approval" }}', 'success');
         document.getElementById('dl-review-form').reset();
+        stars.forEach(s => { s.classList.remove('text-warning'); s.classList.add('text-muted'); });
       }
+    },
+    error(r) {
+      submitBtn.disabled = false;
+      const msg = r?.responseJSON?.exc_type === 'ValidationError'
+        ? (r.responseJSON._server_messages ? JSON.parse(JSON.parse(r.responseJSON._server_messages)[0]).message : '{{ "حدث خطأ" if _lang == "ar" else "Error submitting review" }}')
+        : '{{ "حدث خطأ" if _lang == "ar" else "Error submitting review" }}';
+      dlshopToast(msg, 'error');
     }
   });
 });

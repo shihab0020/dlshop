@@ -251,6 +251,13 @@ def place_order(
     so.insert(ignore_permissions=True)
     so.submit()
 
+    # Log visitor country for geo analytics (best-effort, never raises)
+    try:
+        from dlshop.api.analytics import log_order as _log_order
+        _log_order(so.name)
+    except Exception:
+        pass
+
     frappe.db.set_value("DL Shop Cart", cart_name, {
         "sales_order": so.name,
         "status": "Converted",

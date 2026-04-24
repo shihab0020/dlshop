@@ -87,8 +87,16 @@ class DLShopItem(WebsiteGenerator):
             limit=6,
         )
 
-        # Increment view count
-        frappe.db.set_value("DL Shop Item", self.name, "view_count", (self.view_count or 0) + 1, update_modified=False)
+        # Increment view count atomically — avoids stale self.view_count from cached doc
+        frappe.db.sql(
+            "UPDATE `tabDL Shop Item` SET view_count = COALESCE(view_count, 0) + 1 WHERE name = %s",
+            self.name,
+        )
+        frappe.db.commit()
 
+        context.user_full_name = (
+            frappe.db.get_value("User", frappe.session.user, "full_name")
+            if frappe.session.user != "Guest" else ""
+        )
         context.title = context.meta_title or context.item_name
         context.no_cache = 1

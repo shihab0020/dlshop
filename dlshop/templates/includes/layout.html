@@ -355,6 +355,20 @@
 <script>document.body.classList.add('dl-shop');</script>
 {% endif %}
 {% if _settings.custom_body_html %}{{ _settings.custom_body_html }}{% endif %}
+{% if _settings.enable_visitor_tracking %}
+<script>
+/* DL Shop visit beacon — fires once per session per page path */
+(function() {
+  try {
+    var key = 'dlv:' + location.pathname;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
+    frappe.call({ method: 'dlshop.api.analytics.log_visit',
+      args: { page: location.pathname }, freeze: false });
+  } catch(e) {}
+})();
+</script>
+{% endif %}
 {% endblock %}
 
 {% block script %}
