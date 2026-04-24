@@ -13,8 +13,17 @@ def get_settings():
     return frappe.get_cached_doc("DL Shop Settings")
 
 
-def has_app_permission():
-    return frappe.has_permission("DL Shop Settings", "read")
+def has_app_permission() -> bool:
+    """Check if the current user has permission to access DL Shop."""
+    from frappe.utils import modules as frappe_modules
+    try:
+        allowed = [m["module_name"] for m in frappe_modules.get_modules_from_all_apps_for_user()]
+        if "Dlshop" not in allowed:
+            return False
+    except Exception:
+        pass
+    roles = frappe.get_roles()
+    return any(r in roles for r in ["System Manager", "Sales Manager", "Sales User", "Administrator"])
 
 
 # --------------------------------------------------------------------------- #

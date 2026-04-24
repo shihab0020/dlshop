@@ -16,7 +16,7 @@ add_to_apps_screen = [
         "name": "dlshop",
         "logo": "/assets/dlshop/images/logo.svg",
         "title": "DL Shop",
-        "route": "/shop",
+        "route": "/desk/dl-shop",
         "has_permission": "dlshop.utils.has_app_permission",
     }
 ]
