@@ -279,7 +279,9 @@
  "public": 1,
  "restrict_to_domain": "",
  "roles": [],
- "sequence_id": 1.0,
+ "sequence_id": 22.0,
+ "title": "DL Shop",
+ "type": "Workspace",
  "shortcuts": [
   {
    "color": "Blue",
