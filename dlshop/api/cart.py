@@ -39,7 +39,13 @@ def add_to_cart(item_code, qty=1, variant_item_code=None):
     if not frappe.db.exists("Item", target_item):
         frappe.throw(_("Item {0} not found").format(target_item))
     settings = get_settings()
-    if not is_in_stock(target_item, settings.default_warehouse, settings):
+    dl_item = frappe.db.get_value(
+        "DL Shop Item",
+        {"item_code": target_item, "is_published": 1},
+        ["allow_virtual_stock", "virtual_stock_limit"],
+        as_dict=True,
+    ) or frappe._dict()
+    if not is_in_stock(target_item, settings.default_warehouse, settings, dl_item):
         frappe.throw(_("Item is out of stock"))
     cart = get_or_create_cart()
     existing = next((i for i in cart.items if i.item_code == target_item), None)

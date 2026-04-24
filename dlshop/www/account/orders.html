@@ -54,11 +54,54 @@
   var sym = isSAR ? '⃁' : currency;
   function fmt(v) { return sym + ' ' + parseFloat(v || 0).toLocaleString(undefined, {minimumFractionDigits:2}); }
   var statusMap = {
-    'Completed': ['{{ "مكتمل" if _lang=="ar" else "Completed" }}', 'bg-success'],
-    'To Deliver and Bill': ['{{ "قيد التوصيل" if _lang=="ar" else "Processing" }}', 'bg-warning text-dark'],
-    'To Bill': ['{{ "بانتظار الفاتورة" if _lang=="ar" else "To Bill" }}', 'bg-info text-dark'],
-    'Cancelled': ['{{ "ملغي" if _lang=="ar" else "Cancelled" }}', 'bg-danger'],
+    'Completed':          ['{{ "مكتمل" if _lang=="ar" else "Completed" }}',   'bg-success'],
+    'To Deliver and Bill':['{{ "قيد التوصيل" if _lang=="ar" else "Processing" }}', 'bg-warning text-dark'],
+    'To Bill':            ['{{ "بانتظار الفاتورة" if _lang=="ar" else "To Bill" }}', 'bg-info text-dark'],
+    'Cancelled':          ['{{ "ملغي" if _lang=="ar" else "Cancelled" }}',    'bg-danger'],
   };
+  var approvalMap = {
+    'Pending':  ['{{ "بانتظار الموافقة" if _lang=="ar" else "Pending Approval" }}', 'bg-warning text-dark', 'fa-hourglass-half'],
+    'Approved': ['{{ "تمت الموافقة" if _lang=="ar" else "Approved" }}',             'bg-success',           'fa-check-circle'],
+    'Rejected': ['{{ "مرفوض" if _lang=="ar" else "Rejected" }}',                    'bg-danger',            'fa-times-circle'],
+  };
+
+  var allowCancellation = false;
+  var requireCancelApproval = false;
+
+  function cancelOrder(orderName, btn) {
+    if (requireCancelApproval) {
+      var reason = prompt(lang === 'ar' ? 'سبب الإلغاء (اختياري):' : 'Reason for cancellation (optional):');
+      if (reason === null) return;
+      btn.disabled = true;
+      frappe.call({ method: 'dlshop.api.account.request_cancel_order', args: { order_id: orderName, reason: reason },
+        callback: function(r) {
+          if (r.message && r.message.success) {
+            dlshopToast(lang === 'ar' ? 'تم إرسال طلب الإلغاء' : 'Cancellation request submitted', 'success');
+            loadOrders(1);
+          } else {
+            btn.disabled = false;
+            dlshopToast((r.message && r.message.message) || (lang === 'ar' ? 'حدث خطأ' : 'Error'), 'error');
+          }
+        },
+        error: function() { btn.disabled = false; dlshopToast('Error', 'error'); }
+      });
+    } else {
+      if (!confirm(lang === 'ar' ? 'هل تريد إلغاء هذا الطلب؟' : 'Cancel this order?')) return;
+      btn.disabled = true;
+      frappe.call({ method: 'dlshop.api.account.cancel_order', args: { order_id: orderName },
+        callback: function(r) {
+          if (r.message && r.message.success) {
+            dlshopToast(lang === 'ar' ? 'تم إلغاء الطلب' : 'Order cancelled', 'success');
+            loadOrders(1);
+          } else {
+            btn.disabled = false;
+            dlshopToast((r.message && r.message.message) || (lang === 'ar' ? 'تعذر الإلغاء' : 'Could not cancel'), 'error');
+          }
+        },
+        error: function() { btn.disabled = false; dlshopToast('Error', 'error'); }
+      });
+    }
+  }
 
   function loadOrders(page) {
     frappe.call({ method: 'dlshop.api.account.get_orders', args: { page: page || 1 },
@@ -69,18 +112,45 @@
           container.innerHTML = document.getElementById('tpl-orders-empty').innerHTML;
           return;
         }
+        allowCancellation = !!data.allow_cancellation;
+        requireCancelApproval = !!data.require_cancel_approval;
         container.innerHTML = document.getElementById('tpl-orders-table').innerHTML;
         var tbody = document.getElementById('dl-orders-tbody');
         data.orders.forEach(function(o) {
-          var st = statusMap[o.status] || [o.status, 'bg-secondary'];
+          /* Status badge: show approval status if present, else order status */
+          var statusBadge;
+          if (o.approval_status && approvalMap[o.approval_status]) {
+            var ap = approvalMap[o.approval_status];
+            statusBadge = '<span class="badge ' + ap[1] + '"><i class="fa ' + ap[2] + ' me-1"></i>' + ap[0] + '</span>';
+          } else if (o.docstatus === 2) {
+            statusBadge = '<span class="badge bg-danger">{{ "ملغي" if _lang=="ar" else "Cancelled" }}</span>';
+          } else {
+            var st = statusMap[o.status] || [o.status, 'bg-secondary'];
+            statusBadge = '<span class="badge ' + st[1] + '">' + st[0] + '</span>';
+          }
+
+          /* Cancel button — only for cancellable orders (server decides, we check flag + docstatus) */
+          var cancelBtn = '';
+          if (allowCancellation && o.docstatus === 1 && o.status !== 'Completed' && o.status !== 'Cancelled') {
+            cancelBtn = ' <button class="btn btn-sm btn-outline-danger dl-cancel-order-btn ms-1" data-order="' + o.name + '">{{ "إلغاء" if _lang=="ar" else "Cancel" }}</button>';
+          }
+
           tbody.innerHTML += '<tr>' +
             '<td><code>' + o.name + '</code></td>' +
             '<td>' + o.transaction_date + '</td>' +
             '<td class="fw-semibold">' + fmt(o.grand_total) + '</td>' +
-            '<td><span class="badge ' + st[1] + '">' + st[0] + '</span></td>' +
+            '<td>' + statusBadge + '</td>' +
             '<td><span class="badge bg-light text-dark">' + (o.delivery_status || '-') + '</span></td>' +
-            '<td><a href="/account/order/' + o.name + '/' + lang + '" class="btn btn-sm btn-outline-primary">{{ "عرض" if _lang=="ar" else "View" }}</a></td>' +
+            '<td class="text-end">' +
+              '<a href="/account/order/' + o.name + '/' + lang + '" class="btn btn-sm btn-outline-primary">{{ "عرض" if _lang=="ar" else "View" }}</a>' +
+              cancelBtn +
+            '</td>' +
             '</tr>';
+        });
+
+        /* Bind cancel buttons after DOM update */
+        tbody.querySelectorAll('.dl-cancel-order-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() { cancelOrder(this.dataset.order, this); });
         });
       }
     });

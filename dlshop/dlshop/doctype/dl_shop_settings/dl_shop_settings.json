@@ -40,6 +40,12 @@
   "auto_approve_reviews",
   "section_break_pickup",
   "pickup_enabled",
+  "section_break_approval",
+  "enable_order_approval",
+  "allow_order_cancellation",
+  "cancellation_window_hours",
+  "cancel_pending_approval",
+  "require_cancel_approval",
   "appearance_tab",
   "primary_color",
   "column_break_app1",
@@ -82,6 +88,10 @@
   "address_en",
   "section_break_con4",
   "address_ar",
+  "section_break_widget",
+  "show_contact_widget",
+  "contact_widget_label_en",
+  "contact_widget_label_ar",
   "social_tab",
   "facebook_url",
   "column_break_soc1",
@@ -118,118 +128,620 @@
   "custom_body_html"
  ],
  "fields": [
-  {"fieldname": "general_tab", "fieldtype": "Tab Break", "label": "General"},
-  {"fieldname": "site_name_en", "fieldtype": "Data", "label": "Site Name (English)", "reqd": 1},
-  {"fieldname": "column_break_gen1", "fieldtype": "Column Break"},
-  {"fieldname": "site_name_ar", "fieldtype": "Data", "label": "اسم الموقع (عربي)", "reqd": 1},
-  {"fieldname": "section_break_gen2", "fieldtype": "Section Break"},
-  {"fieldname": "site_description_en", "fieldtype": "Small Text", "label": "Site Description (English)"},
-  {"fieldname": "column_break_gen3", "fieldtype": "Column Break"},
-  {"fieldname": "site_description_ar", "fieldtype": "Small Text", "label": "وصف الموقع (عربي)"},
-  {"fieldname": "section_break_gen4", "fieldtype": "Section Break"},
-  {"fieldname": "logo", "fieldtype": "Attach Image", "label": "Logo"},
-  {"fieldname": "column_break_gen5", "fieldtype": "Column Break"},
-  {"fieldname": "favicon", "fieldtype": "Attach Image", "label": "Favicon"},
-  {"fieldname": "store_tab", "fieldtype": "Tab Break", "label": "Store"},
-  {"fieldname": "default_warehouse", "fieldtype": "Link", "label": "Default Warehouse", "options": "Warehouse"},
-  {"fieldname": "column_break_store1", "fieldtype": "Column Break"},
-  {"fieldname": "default_price_list", "fieldtype": "Link", "label": "Default Price List", "options": "Price List"},
-  {"fieldname": "section_break_store2", "fieldtype": "Section Break"},
-  {"fieldname": "sale_price_list", "fieldtype": "Link", "label": "Sale Price List", "options": "Price List"},
-  {"fieldname": "column_break_store3", "fieldtype": "Column Break"},
-  {"fieldname": "default_currency", "fieldtype": "Link", "label": "Default Currency", "options": "Currency"},
-  {"fieldname": "section_break_store4", "fieldtype": "Section Break"},
-  {"fieldname": "default_tax_template", "fieldtype": "Link", "label": "Default Tax Template", "options": "Sales Taxes and Charges Template"},
-  {"fieldname": "column_break_store5", "fieldtype": "Column Break"},
-  {"fieldname": "default_cost_center", "fieldtype": "Link", "label": "Default Cost Center", "options": "Cost Center"},
-  {"fieldname": "section_break_store4b", "fieldtype": "Section Break"},
-  {"fieldname": "products_per_page", "fieldtype": "Int", "label": "Products Per Page", "default": "20"},
-  {"fieldname": "section_break_store6", "fieldtype": "Section Break"},
-  {"fieldname": "guest_checkout_enabled", "fieldtype": "Check", "label": "Allow Guest Checkout", "default": "1"},
-  {"fieldname": "column_break_store7", "fieldtype": "Column Break"},
-  {"fieldname": "require_login_for_prices", "fieldtype": "Check", "label": "Require Login to View Prices"},
-  {"fieldname": "section_break_store8", "fieldtype": "Section Break"},
-  {"fieldname": "enable_reviews", "fieldtype": "Check", "label": "Enable Product Reviews", "default": "1"},
-  {"fieldname": "column_break_store9", "fieldtype": "Column Break"},
-  {"fieldname": "auto_approve_reviews", "fieldtype": "Check", "label": "Auto-Approve Reviews"},
-  {"fieldname": "section_break_pickup", "fieldtype": "Section Break", "label": "Pickup"},
-  {"fieldname": "pickup_enabled", "fieldtype": "Check", "label": "Enable Store Pickup", "default": "0"},
-  {"fieldname": "appearance_tab", "fieldtype": "Tab Break", "label": "Appearance"},
-  {"fieldname": "primary_color", "fieldtype": "Color", "label": "Primary Color", "default": "#2E3092"},
-  {"fieldname": "column_break_app1", "fieldtype": "Column Break"},
-  {"fieldname": "secondary_color", "fieldtype": "Color", "label": "Secondary Color", "default": "#00AEEF"},
-  {"fieldname": "section_break_app2", "fieldtype": "Section Break"},
-  {"fieldname": "accent_color", "fieldtype": "Color", "label": "Accent/Sale Color", "default": "#e53935"},
-  {"fieldname": "column_break_app3", "fieldtype": "Column Break"},
-  {"fieldname": "navbar_bg_color", "fieldtype": "Color", "label": "Navbar Background", "default": "#ffffff"},
-  {"fieldname": "section_break_app4b", "fieldtype": "Section Break", "label": "Flash Deals"},
-  {"fieldname": "flash_deals_bg_color", "fieldtype": "Color", "label": "Flash Deals Background Color", "default": "#2E3092", "description": "Background color of the Flash Deals products strip"},
-  {"fieldname": "column_break_app4b", "fieldtype": "Column Break"},
-  {"fieldname": "flash_deals_text_color", "fieldtype": "Color", "label": "Flash Deals Accent Color", "default": "#00AEEF", "description": "Used for the title, badge, and timer highlight color"},
-  {"fieldname": "section_break_footer_col", "fieldtype": "Section Break", "label": "Footer"},
-  {"fieldname": "footer_bg_color", "fieldtype": "Color", "label": "Footer Background Color", "default": "#2E3092"},
-  {"fieldname": "column_break_footer_col", "fieldtype": "Column Break"},
-  {"fieldname": "footer_text_color", "fieldtype": "Color", "label": "Footer Text Color", "default": "#a0aec0"},
-  {"fieldname": "section_break_app4", "fieldtype": "Section Break"},
-  {"fieldname": "custom_css", "fieldtype": "Code", "label": "Custom CSS", "options": "CSS"},
-  {"fieldname": "payment_tab", "fieldtype": "Tab Break", "label": "Payment"},
-  {"fieldname": "cod_enabled", "fieldtype": "Check", "label": "Enable Cash on Delivery", "default": "1"},
-  {"fieldname": "column_break_pay1", "fieldtype": "Column Break"},
-  {"fieldname": "cod_charge", "fieldtype": "Currency", "label": "COD Charge", "default": "0"},
-  {"fieldname": "section_break_pay2", "fieldtype": "Section Break"},
-  {"fieldname": "cod_min_order", "fieldtype": "Currency", "label": "COD Minimum Order Amount"},
-  {"fieldname": "column_break_pay3", "fieldtype": "Column Break"},
-  {"fieldname": "cod_max_order", "fieldtype": "Currency", "label": "COD Maximum Order Amount"},
-  {"fieldname": "section_break_pay4", "fieldtype": "Section Break"},
-  {"fieldname": "cod_description_en", "fieldtype": "Small Text", "label": "COD Description (English)"},
-  {"fieldname": "column_break_pay5", "fieldtype": "Column Break"},
-  {"fieldname": "cod_description_ar", "fieldtype": "Small Text", "label": "وصف الدفع عند الاستلام (عربي)"},
-  {"fieldname": "section_break_tabby", "fieldtype": "Section Break", "label": "Tabby (Buy Now, Pay Later)"},
-  {"fieldname": "tabby_enabled", "fieldtype": "Check", "label": "Enable Tabby Payment", "default": "0", "description": "Requires Tabby Settings to be configured with valid API keys"},
-  {"fieldname": "contact_tab", "fieldtype": "Tab Break", "label": "Contact"},
-  {"fieldname": "support_email", "fieldtype": "Data", "label": "Support Email", "options": "Email"},
-  {"fieldname": "column_break_con1", "fieldtype": "Column Break"},
-  {"fieldname": "support_phone", "fieldtype": "Data", "label": "Support Phone"},
-  {"fieldname": "section_break_con2", "fieldtype": "Section Break"},
-  {"fieldname": "whatsapp_number", "fieldtype": "Data", "label": "WhatsApp Number"},
-  {"fieldname": "column_break_con3", "fieldtype": "Column Break"},
-  {"fieldname": "address_en", "fieldtype": "Small Text", "label": "Address (English)"},
-  {"fieldname": "section_break_con4", "fieldtype": "Section Break"},
-  {"fieldname": "address_ar", "fieldtype": "Small Text", "label": "العنوان (عربي)"},
-  {"fieldname": "social_tab", "fieldtype": "Tab Break", "label": "Social Media"},
-  {"fieldname": "facebook_url", "fieldtype": "Data", "label": "Facebook URL", "options": "URL"},
-  {"fieldname": "column_break_soc1", "fieldtype": "Column Break"},
-  {"fieldname": "instagram_url", "fieldtype": "Data", "label": "Instagram URL", "options": "URL"},
-  {"fieldname": "section_break_soc2", "fieldtype": "Section Break"},
-  {"fieldname": "twitter_url", "fieldtype": "Data", "label": "Twitter / X URL", "options": "URL"},
-  {"fieldname": "column_break_soc3", "fieldtype": "Column Break"},
-  {"fieldname": "youtube_url", "fieldtype": "Data", "label": "YouTube URL", "options": "URL"},
-  {"fieldname": "section_break_soc4", "fieldtype": "Section Break"},
-  {"fieldname": "tiktok_url", "fieldtype": "Data", "label": "TikTok URL", "options": "URL"},
-  {"fieldname": "column_break_soc5", "fieldtype": "Column Break"},
-  {"fieldname": "snapchat_url", "fieldtype": "Data", "label": "Snapchat URL", "options": "URL"},
-  {"fieldname": "seo_tab", "fieldtype": "Tab Break", "label": "SEO"},
-  {"fieldname": "meta_title_en", "fieldtype": "Data", "label": "Default Meta Title (EN)", "length": 70},
-  {"fieldname": "column_break_seo1", "fieldtype": "Column Break"},
-  {"fieldname": "meta_title_ar", "fieldtype": "Data", "label": "العنوان التعريفي (AR)", "length": 70},
-  {"fieldname": "section_break_seo2", "fieldtype": "Section Break"},
-  {"fieldname": "meta_description_en", "fieldtype": "Small Text", "label": "Default Meta Description (EN)"},
-  {"fieldname": "column_break_seo3", "fieldtype": "Column Break"},
-  {"fieldname": "meta_description_ar", "fieldtype": "Small Text", "label": "الوصف التعريفي (AR)"},
-  {"fieldname": "section_break_seo4", "fieldtype": "Section Break"},
-  {"fieldname": "google_analytics_id", "fieldtype": "Data", "label": "Google Analytics ID"},
-  {"fieldname": "column_break_seo5", "fieldtype": "Column Break"},
-  {"fieldname": "google_tag_manager_id", "fieldtype": "Data", "label": "Google Tag Manager ID"},
-  {"fieldname": "advanced_tab", "fieldtype": "Tab Break", "label": "Advanced"},
-  {"fieldname": "maintenance_mode", "fieldtype": "Check", "label": "Maintenance Mode"},
-  {"fieldname": "section_break_adv2", "fieldtype": "Section Break"},
-  {"fieldname": "maintenance_message_en", "fieldtype": "Text Editor", "label": "Maintenance Message (EN)"},
-  {"fieldname": "column_break_adv3", "fieldtype": "Column Break"},
-  {"fieldname": "maintenance_message_ar", "fieldtype": "Text Editor", "label": "رسالة الصيانة (AR)"},
-  {"fieldname": "section_break_adv4", "fieldtype": "Section Break"},
-  {"fieldname": "custom_head_html", "fieldtype": "Code", "label": "Custom <head> HTML", "options": "HTML"},
-  {"fieldname": "section_break_adv5", "fieldtype": "Section Break"},
-  {"fieldname": "custom_body_html", "fieldtype": "Code", "label": "Custom Body HTML (before </body>)", "options": "HTML"}
+  {
+   "fieldname": "general_tab",
+   "fieldtype": "Tab Break",
+   "label": "General"
+  },
+  {
+   "fieldname": "site_name_en",
+   "fieldtype": "Data",
+   "label": "Site Name (English)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gen1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_name_ar",
+   "fieldtype": "Data",
+   "label": "اسم الموقع (عربي)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_gen2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "site_description_en",
+   "fieldtype": "Small Text",
+   "label": "Site Description (English)"
+  },
+  {
+   "fieldname": "column_break_gen3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_description_ar",
+   "fieldtype": "Small Text",
+   "label": "وصف الموقع (عربي)"
+  },
+  {
+   "fieldname": "section_break_gen4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "logo",
+   "fieldtype": "Attach Image",
+   "label": "Logo"
+  },
+  {
+   "fieldname": "column_break_gen5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "favicon",
+   "fieldtype": "Attach Image",
+   "label": "Favicon"
+  },
+  {
+   "fieldname": "store_tab",
+   "fieldtype": "Tab Break",
+   "label": "Store"
+  },
+  {
+   "fieldname": "default_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_store1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_price_list",
+   "fieldtype": "Link",
+   "label": "Default Price List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "section_break_store2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "sale_price_list",
+   "fieldtype": "Link",
+   "label": "Sale Price List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "column_break_store3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_currency",
+   "fieldtype": "Link",
+   "label": "Default Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "section_break_store4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "default_tax_template",
+   "fieldtype": "Link",
+   "label": "Default Tax Template",
+   "options": "Sales Taxes and Charges Template"
+  },
+  {
+   "fieldname": "column_break_store5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "section_break_store4b",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "products_per_page",
+   "fieldtype": "Int",
+   "label": "Products Per Page",
+   "default": "20"
+  },
+  {
+   "fieldname": "section_break_store6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "guest_checkout_enabled",
+   "fieldtype": "Check",
+   "label": "Allow Guest Checkout",
+   "default": "1"
+  },
+  {
+   "fieldname": "column_break_store7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "require_login_for_prices",
+   "fieldtype": "Check",
+   "label": "Require Login to View Prices"
+  },
+  {
+   "fieldname": "section_break_store8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "enable_reviews",
+   "fieldtype": "Check",
+   "label": "Enable Product Reviews",
+   "default": "1"
+  },
+  {
+   "fieldname": "column_break_store9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auto_approve_reviews",
+   "fieldtype": "Check",
+   "label": "Auto-Approve Reviews"
+  },
+  {
+   "fieldname": "section_break_pickup",
+   "fieldtype": "Section Break",
+   "label": "Pickup"
+  },
+  {
+   "fieldname": "pickup_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Store Pickup",
+   "default": "0"
+  },
+  {
+   "fieldname": "section_break_approval",
+   "fieldtype": "Section Break",
+   "label": "Order Approval"
+  },
+  {
+   "fieldname": "enable_order_approval",
+   "fieldtype": "Check",
+   "label": "Require Sales Approval Before Payment",
+   "description": "When enabled, orders must be approved by the sales team before the customer can proceed to payment."
+  },
+  {
+   "fieldname": "allow_order_cancellation",
+   "fieldtype": "Check",
+   "label": "Allow Customers to Cancel Orders",
+   "description": "When enabled, customers can cancel their own orders from the account page."
+  },
+  {
+   "fieldname": "cancellation_window_hours",
+   "fieldtype": "Int",
+   "label": "Cancellation Window (hours)",
+   "description": "Number of hours after order placement during which cancellation is allowed. Set 0 for no time limit.",
+   "default": "24"
+  },
+  {
+   "fieldname": "cancel_pending_approval",
+   "fieldtype": "Check",
+   "label": "Allow Cancellation of Pending Approval Orders",
+   "description": "When enabled, customers can cancel orders that are still awaiting approval.",
+   "default": "1"
+  },
+  {
+   "fieldname": "require_cancel_approval",
+   "fieldtype": "Check",
+   "label": "Require Approval to Cancel Order",
+   "description": "When enabled, customers submit a cancellation request instead of cancelling directly. Sales team approves or denies from the desk."
+  },
+  {
+   "fieldname": "appearance_tab",
+   "fieldtype": "Tab Break",
+   "label": "Appearance"
+  },
+  {
+   "fieldname": "primary_color",
+   "fieldtype": "Color",
+   "label": "Primary Color",
+   "default": "#2E3092"
+  },
+  {
+   "fieldname": "column_break_app1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "secondary_color",
+   "fieldtype": "Color",
+   "label": "Secondary Color",
+   "default": "#00AEEF"
+  },
+  {
+   "fieldname": "section_break_app2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "accent_color",
+   "fieldtype": "Color",
+   "label": "Accent/Sale Color",
+   "default": "#e53935"
+  },
+  {
+   "fieldname": "column_break_app3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "navbar_bg_color",
+   "fieldtype": "Color",
+   "label": "Navbar Background",
+   "default": "#ffffff"
+  },
+  {
+   "fieldname": "section_break_app4b",
+   "fieldtype": "Section Break",
+   "label": "Flash Deals"
+  },
+  {
+   "fieldname": "flash_deals_bg_color",
+   "fieldtype": "Color",
+   "label": "Flash Deals Background Color",
+   "default": "#2E3092",
+   "description": "Background color of the Flash Deals products strip"
+  },
+  {
+   "fieldname": "column_break_app4b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "flash_deals_text_color",
+   "fieldtype": "Color",
+   "label": "Flash Deals Accent Color",
+   "default": "#00AEEF",
+   "description": "Used for the title, badge, and timer highlight color"
+  },
+  {
+   "fieldname": "section_break_footer_col",
+   "fieldtype": "Section Break",
+   "label": "Footer"
+  },
+  {
+   "fieldname": "footer_bg_color",
+   "fieldtype": "Color",
+   "label": "Footer Background Color",
+   "default": "#2E3092"
+  },
+  {
+   "fieldname": "column_break_footer_col",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "footer_text_color",
+   "fieldtype": "Color",
+   "label": "Footer Text Color",
+   "default": "#a0aec0"
+  },
+  {
+   "fieldname": "section_break_app4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "custom_css",
+   "fieldtype": "Code",
+   "label": "Custom CSS",
+   "options": "CSS"
+  },
+  {
+   "fieldname": "payment_tab",
+   "fieldtype": "Tab Break",
+   "label": "Payment"
+  },
+  {
+   "fieldname": "cod_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Cash on Delivery",
+   "default": "1"
+  },
+  {
+   "fieldname": "column_break_pay1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cod_charge",
+   "fieldtype": "Currency",
+   "label": "COD Charge",
+   "default": "0"
+  },
+  {
+   "fieldname": "section_break_pay2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "cod_min_order",
+   "fieldtype": "Currency",
+   "label": "COD Minimum Order Amount"
+  },
+  {
+   "fieldname": "column_break_pay3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cod_max_order",
+   "fieldtype": "Currency",
+   "label": "COD Maximum Order Amount"
+  },
+  {
+   "fieldname": "section_break_pay4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "cod_description_en",
+   "fieldtype": "Small Text",
+   "label": "COD Description (English)"
+  },
+  {
+   "fieldname": "column_break_pay5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cod_description_ar",
+   "fieldtype": "Small Text",
+   "label": "وصف الدفع عند الاستلام (عربي)"
+  },
+  {
+   "fieldname": "section_break_tabby",
+   "fieldtype": "Section Break",
+   "label": "Tabby (Buy Now, Pay Later)"
+  },
+  {
+   "fieldname": "tabby_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Tabby Payment",
+   "default": "0",
+   "description": "Requires Tabby Settings to be configured with valid API keys"
+  },
+  {
+   "fieldname": "contact_tab",
+   "fieldtype": "Tab Break",
+   "label": "Contact"
+  },
+  {
+   "fieldname": "support_email",
+   "fieldtype": "Data",
+   "label": "Support Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "column_break_con1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "support_phone",
+   "fieldtype": "Data",
+   "label": "Support Phone"
+  },
+  {
+   "fieldname": "section_break_con2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "whatsapp_number",
+   "fieldtype": "Data",
+   "label": "WhatsApp Number"
+  },
+  {
+   "fieldname": "column_break_con3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "address_en",
+   "fieldtype": "Small Text",
+   "label": "Address (English)"
+  },
+  {
+   "fieldname": "section_break_con4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "address_ar",
+   "fieldtype": "Small Text",
+   "label": "العنوان (عربي)"
+  },
+  {
+   "fieldname": "section_break_widget",
+   "fieldtype": "Section Break",
+   "label": "Contact Widget"
+  },
+  {
+   "fieldname": "show_contact_widget",
+   "fieldtype": "Check",
+   "label": "Show Floating Contact Widget",
+   "description": "Show a floating 'Contact Us' button on the storefront so customers can reach you quickly."
+  },
+  {
+   "fieldname": "contact_widget_label_en",
+   "fieldtype": "Data",
+   "label": "Widget Label (English)",
+   "default": "Contact Us"
+  },
+  {
+   "fieldname": "contact_widget_label_ar",
+   "fieldtype": "Data",
+   "label": "Widget Label (Arabic)",
+   "default": "تواصل معنا"
+  },
+  {
+   "fieldname": "social_tab",
+   "fieldtype": "Tab Break",
+   "label": "Social Media"
+  },
+  {
+   "fieldname": "facebook_url",
+   "fieldtype": "Data",
+   "label": "Facebook URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "column_break_soc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "instagram_url",
+   "fieldtype": "Data",
+   "label": "Instagram URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "section_break_soc2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "twitter_url",
+   "fieldtype": "Data",
+   "label": "Twitter / X URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "column_break_soc3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "youtube_url",
+   "fieldtype": "Data",
+   "label": "YouTube URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "section_break_soc4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "tiktok_url",
+   "fieldtype": "Data",
+   "label": "TikTok URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "column_break_soc5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "snapchat_url",
+   "fieldtype": "Data",
+   "label": "Snapchat URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "seo_tab",
+   "fieldtype": "Tab Break",
+   "label": "SEO"
+  },
+  {
+   "fieldname": "meta_title_en",
+   "fieldtype": "Data",
+   "label": "Default Meta Title (EN)",
+   "length": 70
+  },
+  {
+   "fieldname": "column_break_seo1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "meta_title_ar",
+   "fieldtype": "Data",
+   "label": "العنوان التعريفي (AR)",
+   "length": 70
+  },
+  {
+   "fieldname": "section_break_seo2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "meta_description_en",
+   "fieldtype": "Small Text",
+   "label": "Default Meta Description (EN)"
+  },
+  {
+   "fieldname": "column_break_seo3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "meta_description_ar",
+   "fieldtype": "Small Text",
+   "label": "الوصف التعريفي (AR)"
+  },
+  {
+   "fieldname": "section_break_seo4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "google_analytics_id",
+   "fieldtype": "Data",
+   "label": "Google Analytics ID"
+  },
+  {
+   "fieldname": "column_break_seo5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "google_tag_manager_id",
+   "fieldtype": "Data",
+   "label": "Google Tag Manager ID"
+  },
+  {
+   "fieldname": "advanced_tab",
+   "fieldtype": "Tab Break",
+   "label": "Advanced"
+  },
+  {
+   "fieldname": "maintenance_mode",
+   "fieldtype": "Check",
+   "label": "Maintenance Mode"
+  },
+  {
+   "fieldname": "section_break_adv2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "maintenance_message_en",
+   "fieldtype": "Text Editor",
+   "label": "Maintenance Message (EN)"
+  },
+  {
+   "fieldname": "column_break_adv3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maintenance_message_ar",
+   "fieldtype": "Text Editor",
+   "label": "رسالة الصيانة (AR)"
+  },
+  {
+   "fieldname": "section_break_adv4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "custom_head_html",
+   "fieldtype": "Code",
+   "label": "Custom <head> HTML",
+   "options": "HTML"
+  },
+  {
+   "fieldname": "section_break_adv5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "custom_body_html",
+   "fieldtype": "Code",
+   "label": "Custom Body HTML (before </body>)",
+   "options": "HTML"
+  }
  ],
  "issingle": 1,
  "modified": "2024-01-01 00:00:00.000000",
@@ -238,8 +750,16 @@
  "name": "DL Shop Settings",
  "owner": "Administrator",
  "permissions": [
-  {"role": "System Manager", "read": 1, "write": 1},
-  {"role": "Website Manager", "read": 1, "write": 1}
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Website Manager",
+   "read": 1,
+   "write": 1
+  }
  ],
  "sort_field": "modified",
  "sort_order": "DESC"

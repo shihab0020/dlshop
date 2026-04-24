@@ -28,7 +28,7 @@ class DLShopItem(WebsiteGenerator):
 
     def get_context(self, context):
         """Called when this item's web page is rendered."""
-        from dlshop.utils import get_settings, get_item_price, get_item_stock, get_item_variants
+        from dlshop.utils import get_settings, get_item_price, get_item_stock, get_item_variants, get_virtual_stock_remaining
 
         from dlshop.utils import get_current_lang
         settings = get_settings()
@@ -50,8 +50,18 @@ class DLShopItem(WebsiteGenerator):
         context.sale_price = self.sale_price or None
         context.custom_price = self.custom_price if self.custom_price_enabled else None
 
-        # Stock
-        context.in_stock = get_item_stock(self.item_code, settings.default_warehouse)
+        # Stock — respect virtual stock flag
+        dl_item_dict = frappe._dict({
+            "allow_virtual_stock": self.allow_virtual_stock,
+            "virtual_stock_limit": self.virtual_stock_limit,
+        })
+        if self.allow_virtual_stock:
+            remaining = get_virtual_stock_remaining(self.item_code, dl_item_dict)
+            context.in_stock = -1 if remaining == -1 else remaining  # -1=unlimited, 0=none, N=remaining
+            context.is_virtual_stock = True
+        else:
+            context.in_stock = get_item_stock(self.item_code, settings.default_warehouse)
+            context.is_virtual_stock = False
 
         # Variants (if template item)
         context.variants = get_item_variants(self.item_code)

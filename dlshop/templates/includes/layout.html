@@ -10,7 +10,7 @@
 {% block head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-<link rel="stylesheet" href="/assets/dlshop/css/dlshop.css?v=14" />
+<link rel="stylesheet" href="/assets/dlshop/css/dlshop.css?v=15" />
 <style>
   :root {
     --dl-primary: {{ _settings.primary_color or '#2E3092' }};
@@ -238,6 +238,106 @@
     </div>
   </div>
 </footer>
+{% endblock %}
+
+{% block contact_widget %}
+{% if _settings.show_contact_widget %}
+{# ── Floating Contact Widget ─────────────────────────────── #}
+<div id="dl-contact-widget">
+  {# Toggle button #}
+  <button class="dl-contact-fab" id="dl-contact-toggle" aria-label="{{ _settings.contact_widget_label_ar if _lang == 'ar' else _settings.contact_widget_label_en or 'Contact Us' }}">
+    <i class="fa fa-comments fa-lg" id="dl-contact-fab-icon"></i>
+    <i class="fa fa-times fa-lg d-none" id="dl-contact-fab-close"></i>
+  </button>
+
+  {# Panel #}
+  <div class="dl-contact-panel d-none" id="dl-contact-panel">
+    <div class="dl-contact-header">
+      <span class="fw-semibold">{{ _settings.contact_widget_label_ar if _lang == 'ar' else _settings.contact_widget_label_en or 'Contact Us' }}</span>
+    </div>
+    <div class="dl-contact-body">
+
+      {# Quick contact links #}
+      <div class="dl-contact-links mb-3">
+        {% if _settings.support_phone %}
+        <a href="tel:{{ _settings.support_phone }}" class="dl-contact-link">
+          <i class="fa fa-phone"></i>
+          <div><div class="dl-cl-label">{{ 'اتصل بنا' if _lang == 'ar' else 'Call Us' }}</div><div class="dl-cl-value">{{ _settings.support_phone }}</div></div>
+        </a>
+        {% endif %}
+        {% if _settings.whatsapp_number %}
+        <a href="https://wa.me/{{ _settings.whatsapp_number }}" target="_blank" class="dl-contact-link dl-cl-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+          <div><div class="dl-cl-label">WhatsApp</div><div class="dl-cl-value">{{ _settings.whatsapp_number }}</div></div>
+        </a>
+        {% endif %}
+        {% if _settings.support_email %}
+        <a href="mailto:{{ _settings.support_email }}" class="dl-contact-link dl-cl-email">
+          <i class="fa fa-envelope"></i>
+          <div><div class="dl-cl-label">{{ 'راسلنا' if _lang == 'ar' else 'Email Us' }}</div><div class="dl-cl-value">{{ _settings.support_email }}</div></div>
+        </a>
+        {% endif %}
+      </div>
+
+      {# Send Message form #}
+      <div class="dl-contact-divider mb-3">{{ 'أو أرسل رسالة' if _lang == 'ar' else 'Or send a message' }}</div>
+      <form id="dl-inquiry-form">
+        <input type="text" class="form-control form-control-sm mb-2" id="dl-inq-name" placeholder="{{ 'اسمك *' if _lang == 'ar' else 'Your name *' }}" required />
+        <input type="email" class="form-control form-control-sm mb-2" id="dl-inq-email" placeholder="{{ 'بريدك الإلكتروني' if _lang == 'ar' else 'Email (optional)' }}" />
+        <input type="text" class="form-control form-control-sm mb-2" id="dl-inq-phone" placeholder="{{ 'رقم الجوال' if _lang == 'ar' else 'Phone (optional)' }}" />
+        <textarea class="form-control form-control-sm mb-2" id="dl-inq-message" rows="3" placeholder="{{ 'رسالتك *' if _lang == 'ar' else 'Your message *' }}" required></textarea>
+        <button type="submit" class="btn btn-primary btn-sm w-100">
+          <i class="fa fa-paper-plane me-1"></i>{{ 'إرسال' if _lang == 'ar' else 'Send' }}
+        </button>
+        <div id="dl-inq-status" class="small mt-2 text-center"></div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  var toggle = document.getElementById('dl-contact-toggle');
+  var panel = document.getElementById('dl-contact-panel');
+  var iconOpen = document.getElementById('dl-contact-fab-icon');
+  var iconClose = document.getElementById('dl-contact-fab-close');
+  toggle.addEventListener('click', function() {
+    var hidden = panel.classList.toggle('d-none');
+    iconOpen.classList.toggle('d-none', !hidden);
+    iconClose.classList.toggle('d-none', hidden);
+  });
+  document.getElementById('dl-inquiry-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = this.querySelector('button[type=submit]');
+    var status = document.getElementById('dl-inq-status');
+    var name = (document.getElementById('dl-inq-name').value || '').trim();
+    var msg  = (document.getElementById('dl-inq-message').value || '').trim();
+    if (!name || !msg) return;
+    btn.disabled = true;
+    frappe.call({
+      method: 'dlshop.api.inquiry.submit_inquiry',
+      args: {
+        customer_name: name,
+        customer_email: (document.getElementById('dl-inq-email').value || '').trim(),
+        customer_phone: (document.getElementById('dl-inq-phone').value || '').trim(),
+        message: msg,
+      },
+      callback: function(r) {
+        btn.disabled = false;
+        var lang = window.dlshop && window.dlshop.lang;
+        if (r.message && r.message.success) {
+          status.className = 'small mt-2 text-center text-success';
+          status.textContent = lang === 'ar' ? 'تم إرسال رسالتك ✓' : 'Message sent ✓';
+          document.getElementById('dl-inquiry-form').reset();
+        } else {
+          status.className = 'small mt-2 text-center text-danger';
+          status.textContent = lang === 'ar' ? 'حدث خطأ، حاول مجدداً' : 'Error, please try again';
+        }
+      }
+    });
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}
 
 {% block base_scripts %}

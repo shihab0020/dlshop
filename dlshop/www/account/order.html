@@ -28,6 +28,35 @@
       var o = r.message;
       var el = document.getElementById('dl-order-detail-content');
       if (!o) { el.innerHTML = '<div class="alert alert-warning">{{ "لم يتم العثور على الطلب" if _lang=="ar" else "Order not found" }}</div>'; return; }
+      /* Approval status badge */
+      var approvalHtml = '';
+      if (o.approval_status === 'Pending') {
+        approvalHtml = '<div class="alert alert-warning d-flex align-items-center gap-2 mb-3"><i class="fa fa-hourglass-half"></i><span>' + (lang === 'ar' ? 'طلبك قيد المراجعة من فريق المبيعات' : 'Your order is awaiting sales team approval') + '</span></div>';
+      } else if (o.approval_status === 'Rejected') {
+        var reason = o.rejection_reason ? (' — ' + o.rejection_reason) : '';
+        approvalHtml = '<div class="alert alert-danger d-flex align-items-center gap-2 mb-3"><i class="fa fa-times-circle"></i><span>' + (lang === 'ar' ? 'تم رفض الطلب' : 'Order rejected') + reason + '</span></div>';
+      } else if (o.approval_status === 'Approved') {
+        approvalHtml = '<div class="alert alert-success d-flex align-items-center gap-2 mb-3"><i class="fa fa-check-circle"></i><span>' + (lang === 'ar' ? 'تمت الموافقة على طلبك!' : 'Your order has been approved!') + '</span></div>';
+      }
+
+      /* Pay Now button (shown only when Approved + Tabby payment) */
+      var payNowHtml = '';
+      if (o.approval_status === 'Approved' && o.payment_method === 'TABBY') {
+        payNowHtml = '<button class="btn btn-success w-100 mt-3 fw-bold" id="dl-pay-now-btn"><i class="fa fa-credit-card me-2"></i>' + (lang === 'ar' ? 'أكمل الدفع عبر تابي' : 'Complete Payment via Tabby') + '</button>';
+      }
+
+      /* Cancel / Request Cancel button */
+      var cancelHtml = '';
+      if (o.direct) {
+        cancelHtml = '<button class="btn btn-outline-danger w-100 mt-3" id="dl-cancel-order-btn"><i class="fa fa-times me-1"></i>' + (lang === 'ar' ? 'إلغاء الطلب' : 'Cancel Order') + '</button>';
+      } else if (o.request) {
+        cancelHtml = '<button class="btn btn-outline-warning w-100 mt-3" id="dl-request-cancel-btn"><i class="fa fa-hand-paper me-1"></i>' + (lang === 'ar' ? 'طلب إلغاء الطلب' : 'Request Cancellation') + '</button>';
+      } else if (o.cancel_request_status === 'Pending') {
+        cancelHtml = '<div class="alert alert-warning mt-3 py-2 mb-0 small"><i class="fa fa-hourglass-half me-1"></i>' + (lang === 'ar' ? 'طلب الإلغاء قيد المراجعة' : 'Cancellation request is under review') + '</div>';
+      } else if (o.cancel_request_status === 'Denied') {
+        cancelHtml = '<div class="alert alert-danger mt-3 py-2 mb-0 small"><i class="fa fa-times-circle me-1"></i>' + (lang === 'ar' ? 'تم رفض طلب الإلغاء' : 'Cancellation request was denied') + '</div>';
+      }
+
       var rows = o.items.map(function(i) {
         return '<tr>' +
           '<td class="d-flex align-items-center gap-2">' + (i.image ? '<img src="'+i.image+'" height="50" class="rounded" />' : '<div class="bg-light rounded" style="width:50px;height:50px;"></div>') +
@@ -39,6 +68,7 @@
       }).join('');
       el.innerHTML = '<div class="row g-4">' +
         '<div class="col-12 col-lg-8"><div class="card border-0 shadow-sm"><div class="card-body">' +
+        approvalHtml +
         '<div class="d-flex justify-content-between mb-3"><div><p class="mb-1 text-muted small">{{ "رقم الطلب" if _lang=="ar" else "Order ID" }}</p><h5 class="mb-0"><code>' + o.name + '</code></h5></div>' +
         '<span class="badge bg-primary fs-6">' + (o.status || '') + '</span></div>' +
         '<p class="text-muted mb-3">{{ "التاريخ:" if _lang=="ar" else "Date:" }} ' + o.date + '</p>' +
@@ -49,8 +79,75 @@
         '<div class="col-12 col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body">' +
         '<h5 class="card-title">{{ "ملخص" if _lang=="ar" else "Summary" }}</h5>' +
         '<div class="d-flex justify-content-between border-bottom pb-2 mb-2"><span class="text-muted">{{ "الإجمالي النهائي" if _lang=="ar" else "Grand Total" }}</span><strong>' + fmt(o.grand_total) + '</strong></div>' +
-        '<div class="d-flex justify-content-between"><span class="text-muted">{{ "حالة التوصيل" if _lang=="ar" else "Delivery" }}</span><span>' + (o.delivery_status || '-') + '</span></div>' +
+        '<div class="d-flex justify-content-between mb-2"><span class="text-muted">{{ "حالة التوصيل" if _lang=="ar" else "Delivery" }}</span><span>' + (o.delivery_status || '-') + '</span></div>' +
+        payNowHtml +
+        cancelHtml +
         '</div></div></div></div>';
+
+      /* Direct Cancel handler */
+      var cancelBtn = document.getElementById('dl-cancel-order-btn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+          if (!confirm(lang === 'ar' ? 'هل تريد إلغاء هذا الطلب؟' : 'Cancel this order?')) return;
+          cancelBtn.disabled = true;
+          cancelBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>' + (lang === 'ar' ? 'جاري الإلغاء...' : 'Cancelling...');
+          frappe.call({ method: 'dlshop.api.account.cancel_order', args: { order_id: orderName },
+            callback: function(r) {
+              if (r.message && r.message.success) {
+                dlshopToast(lang === 'ar' ? 'تم إلغاء الطلب' : 'Order cancelled', 'success');
+                setTimeout(function() { window.location.reload(); }, 1200);
+              } else {
+                cancelBtn.disabled = false;
+                cancelBtn.innerHTML = '<i class="fa fa-times me-1"></i>' + (lang === 'ar' ? 'إلغاء الطلب' : 'Cancel Order');
+                dlshopToast((r.message && r.message.message) || (lang === 'ar' ? 'تعذر الإلغاء' : 'Could not cancel'), 'error');
+              }
+            }
+          });
+        });
+      }
+
+      /* Request Cancellation handler */
+      var reqCancelBtn = document.getElementById('dl-request-cancel-btn');
+      if (reqCancelBtn) {
+        reqCancelBtn.addEventListener('click', function() {
+          var reason = prompt(lang === 'ar' ? 'سبب الإلغاء (اختياري):' : 'Reason for cancellation (optional):') ;
+          if (reason === null) return; // user hit Cancel on prompt
+          reqCancelBtn.disabled = true;
+          reqCancelBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>' + (lang === 'ar' ? 'جاري الإرسال...' : 'Sending...');
+          frappe.call({ method: 'dlshop.api.account.request_cancel_order', args: { order_id: orderName, reason: reason },
+            callback: function(r) {
+              if (r.message && r.message.success) {
+                dlshopToast(lang === 'ar' ? 'تم إرسال طلب الإلغاء' : 'Cancellation request submitted', 'success');
+                setTimeout(function() { window.location.reload(); }, 1200);
+              } else {
+                reqCancelBtn.disabled = false;
+                reqCancelBtn.innerHTML = '<i class="fa fa-hand-paper me-1"></i>' + (lang === 'ar' ? 'طلب إلغاء الطلب' : 'Request Cancellation');
+                dlshopToast((r.message && r.message.message) || (lang === 'ar' ? 'حدث خطأ' : 'Error'), 'error');
+              }
+            }
+          });
+        });
+      }
+
+      /* Pay Now handler */
+      var payBtn = document.getElementById('dl-pay-now-btn');
+      if (payBtn) {
+        payBtn.addEventListener('click', function() {
+          payBtn.disabled = true;
+          payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + (lang === 'ar' ? 'جاري التوجيه...' : 'Redirecting...');
+          frappe.call({ method: 'dlshop.api.checkout.get_payment_url', args: { order_name: orderName },
+            callback: function(r) {
+              if (r.message && r.message.success && r.message.redirect_url) {
+                window.location.href = r.message.redirect_url;
+              } else {
+                payBtn.disabled = false;
+                payBtn.innerHTML = '<i class="fa fa-credit-card me-2"></i>' + (lang === 'ar' ? 'أكمل الدفع عبر تابي' : 'Complete Payment via Tabby');
+                dlshopToast(lang === 'ar' ? 'حدث خطأ' : 'Error initiating payment', 'error');
+              }
+            }
+          });
+        });
+      }
     }
   });
 })();

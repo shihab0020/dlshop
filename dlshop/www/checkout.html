@@ -189,21 +189,40 @@
   </div>
 </template>
 
-{# Step 4: Success #}
+{# Step 4: Success (or Pending Approval) #}
 <template id="tpl-step-4">
   <div class="card border-0 shadow-sm text-center py-5">
     <div class="card-body">
-      <div class="dl-success-icon mb-4">
-        <i class="fa fa-check-circle text-success" style="font-size: 5rem;"></i>
+
+      {# Normal success state #}
+      <div id="dl-success-content">
+        <div class="dl-success-icon mb-4">
+          <i class="fa fa-check-circle text-success" style="font-size: 5rem;"></i>
+        </div>
+        <h2 class="text-success mb-2">{{ 'تم استلام طلبك!' if _lang == 'ar' else 'Order Placed!' }}</h2>
+        <p class="text-muted mb-1">{{ 'رقم الطلب:' if _lang == 'ar' else 'Order ID:' }} <strong id="dl-order-id"></strong></p>
+        <p class="text-muted mb-2" id="dl-success-fulfillment"></p>
+        <p class="text-muted mb-4">{{ 'سنرسل لك تأكيدًا عبر البريد الإلكتروني.' if _lang == 'ar' else "We'll send you a confirmation email shortly." }}</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+          <a href="/account/orders/{{ _lang }}" class="btn btn-primary">{{ 'تتبع طلبي' if _lang == 'ar' else 'Track My Order' }}</a>
+          <a href="/shop/{{ _lang }}" class="btn btn-outline-secondary">{{ 'مواصلة التسوق' if _lang == 'ar' else 'Continue Shopping' }}</a>
+        </div>
       </div>
-      <h2 class="text-success mb-2">{{ 'تم استلام طلبك!' if _lang == 'ar' else 'Order Placed!' }}</h2>
-      <p class="text-muted mb-1">{{ 'رقم الطلب:' if _lang == 'ar' else 'Order ID:' }} <strong id="dl-order-id"></strong></p>
-      <p class="text-muted mb-2" id="dl-success-fulfillment"></p>
-      <p class="text-muted mb-4">{{ 'سنرسل لك تأكيدًا عبر البريد الإلكتروني.' if _lang == 'ar' else "We'll send you a confirmation email shortly." }}</p>
-      <div class="d-flex gap-3 justify-content-center flex-wrap">
-        <a href="/account/orders/{{ _lang }}" class="btn btn-primary">{{ 'تتبع طلبي' if _lang == 'ar' else 'Track My Order' }}</a>
-        <a href="/shop/{{ _lang }}" class="btn btn-outline-secondary">{{ 'مواصلة التسوق' if _lang == 'ar' else 'Continue Shopping' }}</a>
+
+      {# Pending approval state (hidden by default, shown when approval_required) #}
+      <div id="dl-approval-pending" style="display:none;">
+        <div class="mb-4">
+          <i class="fa fa-hourglass-half text-warning" style="font-size: 5rem;"></i>
+        </div>
+        <h2 class="text-warning mb-2">{{ 'طلبك قيد المراجعة' if _lang == 'ar' else 'Awaiting Approval' }}</h2>
+        <p class="text-muted mb-1">{{ 'رقم الطلب:' if _lang == 'ar' else 'Order ID:' }} <strong id="dl-order-id"></strong></p>
+        <p class="text-muted mb-4">{{ 'سيراجع فريق المبيعات طلبك ويتواصل معك قريباً. يمكنك متابعة حالة الطلب من حسابك.' if _lang == 'ar' else 'Our sales team will review your order and contact you shortly. You can track the approval status from your account.' }}</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+          <a href="/account/orders/{{ _lang }}" class="btn btn-primary">{{ 'متابعة حالة الطلب' if _lang == 'ar' else 'Track Order Status' }}</a>
+          <a href="/shop/{{ _lang }}" class="btn btn-outline-secondary">{{ 'مواصلة التسوق' if _lang == 'ar' else 'Continue Shopping' }}</a>
+        </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -218,5 +237,5 @@ var dlCheckoutConfig = {
   currency: '{{ shop_settings.default_currency or "SAR" }}',
 };
 </script>
-<script src="/assets/dlshop/js/checkout.js?v=2"></script>
+<script src="/assets/dlshop/js/checkout.js?v=3"></script>
 {% endblock %}

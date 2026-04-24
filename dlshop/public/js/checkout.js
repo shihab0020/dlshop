@@ -308,6 +308,17 @@
         if (r.message && r.message.success) {
           window.dlshopRefreshCartCount && window.dlshopRefreshCartCount();
 
+          /* Approval required: show pending state */
+          if (r.message.approval_required) {
+            setStep(4);
+            document.getElementById('dl-order-id').textContent = r.message.order_id;
+            var pendingEl = document.getElementById('dl-approval-pending');
+            var successEl = document.getElementById('dl-success-content');
+            if (pendingEl) pendingEl.style.display = '';
+            if (successEl) successEl.style.display = 'none';
+            return;
+          }
+
           /* Tabby: redirect to Tabby checkout page */
           if (r.message.payment_method === 'tabby' && r.message.redirect_url) {
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' +

@@ -9,7 +9,7 @@ from dlshop.utils import get_settings
 
 @frappe.whitelist()
 def get_orders(page=1, page_size=10):
-    """Return current user's orders (Sales Orders)."""
+    """Return current user's orders with approval status if applicable."""
     page = max(1, cint(page) or 1)
     page_size = min(50, max(1, cint(page_size) or 10))
     customer = frappe.db.get_value("Customer", {"email_id": frappe.session.user}, "name")
@@ -17,14 +17,36 @@ def get_orders(page=1, page_size=10):
         return {"orders": [], "total": 0}
     orders = frappe.get_all(
         "Sales Order",
-        filters={"customer": customer, "docstatus": 1},
-        fields=["name", "transaction_date", "grand_total", "status", "delivery_status", "currency"],
+        filters={"customer": customer, "docstatus": ["in", [1, 2]]},
+        fields=["name", "transaction_date", "grand_total", "status", "delivery_status", "currency", "docstatus"],
         order_by="transaction_date desc",
         start=(page - 1) * page_size,
         page_length=page_size,
     )
-    total = frappe.db.count("Sales Order", {"customer": customer, "docstatus": 1})
-    return {"orders": orders, "total": total, "page": page, "page_size": page_size}
+    total = frappe.db.count("Sales Order", {"customer": customer, "docstatus": ["in", [1, 2]]})
+
+    # Batch fetch approval records for all orders in this page
+    if orders:
+        order_names = [o.name for o in orders]
+        approvals = frappe.get_all(
+            "DL Shop Order Approval",
+            filters={"sales_order": ["in", order_names]},
+            fields=["sales_order", "approval_status"],
+        )
+        approval_map = {a.sales_order: a.approval_status for a in approvals}
+        for o in orders:
+            o["approval_status"] = approval_map.get(o.name)
+
+    settings = get_settings()
+    return {
+        "orders": orders,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "allow_cancellation": bool(settings.allow_order_cancellation),
+        "require_cancel_approval": bool(settings.require_cancel_approval),
+        "cancellation_window_hours": settings.cancellation_window_hours or 0,
+    }
 
 
 @frappe.whitelist()
@@ -34,7 +56,7 @@ def get_order_detail(order_id):
     if not customer:
         return None
     order = frappe.db.get_value(
-        "Sales Order", {"name": order_id, "customer": customer, "docstatus": 1}, "name"
+        "Sales Order", {"name": order_id, "customer": customer, "docstatus": ["in", [1, 2]]}, "name"
     )
     if not order:
         return None
@@ -63,6 +85,14 @@ def get_order_detail(order_id):
             "image": dl.get("featured_image"),
             "route": dl.get("route"),
         })
+    # Approval status (present only when approval workflow was used for this order)
+    approval = frappe.db.get_value(
+        "DL Shop Order Approval",
+        {"sales_order": so.name},
+        ["approval_status", "payment_method", "rejection_reason"],
+        as_dict=True,
+    )
+
     return {
         "name": so.name,
         "date": so.transaction_date,
@@ -71,7 +101,135 @@ def get_order_detail(order_id):
         "grand_total": so.grand_total,
         "currency": so.currency,
         "items": items,
+        "approval_status": approval.approval_status if approval else None,
+        "payment_method": (approval.payment_method or "").upper() if approval else None,
+        "rejection_reason": approval.rejection_reason if approval else None,
+        **_can_cancel_order(so, approval),
     }
+
+
+@frappe.whitelist()
+def cancel_order(order_id):
+    """Directly cancel an order (used when require_cancel_approval is disabled)."""
+    settings = get_settings()
+    if not settings.allow_order_cancellation:
+        frappe.throw(_("Order cancellation is not enabled"))
+    if settings.require_cancel_approval:
+        frappe.throw(_("Please use the cancellation request instead"))
+
+    so_doc = _get_owned_order(order_id)
+    _assert_cancellable(so_doc, settings)
+
+    # Mark approval record as rejected if present
+    approval = frappe.db.get_value(
+        "DL Shop Order Approval", {"sales_order": so_doc.name}, ["name", "approval_status"], as_dict=True
+    )
+    if approval:
+        if approval.approval_status == "Pending" and not settings.cancel_pending_approval:
+            frappe.throw(_("Orders awaiting approval cannot be cancelled"))
+        frappe.db.set_value("DL Shop Order Approval", approval.name, {
+            "approval_status": "Rejected",
+            "rejection_reason": "Cancelled by customer",
+        })
+
+    so_doc.flags.ignore_permissions = True
+    so_doc.cancel()
+    frappe.db.commit()
+    return {"success": True}
+
+
+@frappe.whitelist()
+def request_cancel_order(order_id, reason=None):
+    """Submit a cancellation request (used when require_cancel_approval is enabled)."""
+    settings = get_settings()
+    if not settings.allow_order_cancellation:
+        frappe.throw(_("Order cancellation is not enabled"))
+
+    so_doc = _get_owned_order(order_id)
+    _assert_cancellable(so_doc, settings)
+
+    # Prevent duplicate requests
+    existing = frappe.db.get_value(
+        "DL Shop Cancel Request", {"sales_order": so_doc.name, "status": "Pending"}, "name"
+    )
+    if existing:
+        frappe.throw(_("A cancellation request is already pending for this order"))
+
+    customer = frappe.db.get_value("Customer", {"email_id": frappe.session.user}, "name")
+    frappe.get_doc({
+        "doctype": "DL Shop Cancel Request",
+        "sales_order": so_doc.name,
+        "customer": customer or "",
+        "customer_email": frappe.session.user,
+        "reason": (reason or "").strip()[:500],
+        "status": "Pending",
+    }).insert(ignore_permissions=True)
+    frappe.db.commit()
+    return {"success": True}
+
+
+def _get_owned_order(order_id):
+    """Fetch a submitted Sales Order that belongs to the current user."""
+    customer = frappe.db.get_value("Customer", {"email_id": frappe.session.user}, "name")
+    if not customer:
+        frappe.throw(_("Customer not found"))
+    name = frappe.db.get_value(
+        "Sales Order", {"name": order_id, "customer": customer, "docstatus": 1}, "name"
+    )
+    if not name:
+        frappe.throw(_("Order not found"))
+    return frappe.get_doc("Sales Order", name)
+
+
+def _assert_cancellable(so_doc, settings):
+    """Raise if the order is not in a cancellable state."""
+    if so_doc.status in ("Completed", "Cancelled"):
+        frappe.throw(_("This order cannot be cancelled"))
+    window_hours = settings.cancellation_window_hours or 0
+    if window_hours > 0:
+        from frappe.utils import get_datetime, now_datetime as _now
+        age_seconds = (_now() - get_datetime(so_doc.creation)).total_seconds()
+        if age_seconds > window_hours * 3600:
+            frappe.throw(_("Cancellation window has expired"))
+
+
+def _can_cancel_order(so, approval):
+    """Return cancel capability flags for the order detail page."""
+    try:
+        settings = get_settings()
+        if not settings.allow_order_cancellation:
+            return {"direct": False, "request": False, "cancel_request_status": None}
+        if so.docstatus != 1 or so.status in ("Completed", "Cancelled"):
+            return {"direct": False, "request": False, "cancel_request_status": None}
+
+        window_hours = settings.cancellation_window_hours or 0
+        if window_hours > 0:
+            from frappe.utils import get_datetime, now_datetime as _now
+            if (_now() - get_datetime(so.creation)).total_seconds() > window_hours * 3600:
+                return {"direct": False, "request": False, "cancel_request_status": None}
+
+        if approval and approval.approval_status == "Pending" and not settings.cancel_pending_approval:
+            return {"direct": False, "request": False, "cancel_request_status": None}
+
+        # Check for existing cancel request
+        cancel_req = frappe.db.get_value(
+            "DL Shop Cancel Request", {"sales_order": so.name}, "status"
+        )
+        require_approval = bool(settings.require_cancel_approval)
+
+        if require_approval:
+            return {
+                "direct": False,
+                "request": not cancel_req or cancel_req == "Denied",
+                "cancel_request_status": cancel_req,
+            }
+        return {
+            "direct": True,
+            "request": False,
+            "cancel_request_status": cancel_req,
+        }
+    except Exception:
+        return {"direct": False, "request": False, "cancel_request_status": None}
 
 
 @frappe.whitelist()

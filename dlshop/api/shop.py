@@ -77,12 +77,14 @@ def get_products(
             "route", "is_on_sale", "sale_price", "is_new_arrival", "is_featured",
             "item_code", "badge_text_en", "badge_text_ar", "custom_price",
             "custom_price_enabled", "brand", "item_group",
+            "allow_virtual_stock", "virtual_stock_limit",
         ],
         order_by=f"{sort_by} {sort_order}",
         start=(page - 1) * page_size,
         page_length=page_size,
     )
 
+    from dlshop.utils import is_in_stock, get_settings as _gs
     for item in items:
         item["name_display"] = bilingual(item["web_item_name_en"], item["web_item_name_ar"], lang)
         item["badge"] = bilingual(item["badge_text_en"], item["badge_text_ar"], lang)
@@ -90,6 +92,7 @@ def get_products(
         item["price"] = price
         item["original_price"] = orig
         item["has_discount"] = has_discount
+        item["in_stock"] = is_in_stock(item["item_code"], settings.default_warehouse, settings, frappe._dict(item))
 
     # Price filter post-fetch
     if min_p or max_p:

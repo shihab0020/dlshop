@@ -154,9 +154,64 @@ def get_item_stock(item_code, warehouse=None, settings=None):
         return 0
 
 
-def is_in_stock(item_code, warehouse=None, settings=None):
+def is_in_stock(item_code, warehouse=None, settings=None, dl_item=None):
+    """Check availability — respects virtual stock if enabled on the DL Shop Item."""
+    # Resolve DL Shop Item doc if not provided
+    if dl_item is None:
+        dl_item = frappe.db.get_value(
+            "DL Shop Item",
+            {"item_code": item_code, "is_published": 1},
+            ["allow_virtual_stock", "virtual_stock_limit"],
+            as_dict=True,
+        ) or frappe._dict()
+
+    if dl_item.get("allow_virtual_stock"):
+        limit = (dl_item.get("virtual_stock_limit") or 0)
+        if limit == 0:
+            return True  # unlimited virtual stock
+        # Count active pending/open Sales Order items for this item_code
+        used = _count_active_virtual_orders(item_code)
+        return used < limit
+
     qty = get_item_stock(item_code, warehouse, settings)
-    return qty != 0  # -1 means unlimited (in stock), positive = in stock
+    return qty != 0  # -1 means unlimited, positive = in stock
+
+
+def get_virtual_stock_remaining(item_code, dl_item=None):
+    """Return remaining virtual stock (-1 = unlimited, 0 = none left, N = remaining)."""
+    if dl_item is None:
+        dl_item = frappe.db.get_value(
+            "DL Shop Item",
+            {"item_code": item_code, "is_published": 1},
+            ["allow_virtual_stock", "virtual_stock_limit"],
+            as_dict=True,
+        ) or frappe._dict()
+
+    if not dl_item.get("allow_virtual_stock"):
+        return None  # not virtual — caller should use physical stock
+
+    limit = (dl_item.get("virtual_stock_limit") or 0)
+    if limit == 0:
+        return -1  # unlimited
+
+    used = _count_active_virtual_orders(item_code)
+    return max(0, limit - used)
+
+
+def _count_active_virtual_orders(item_code):
+    """Sum qty from open Sales Orders for virtual stock counting."""
+    result = frappe.db.sql(
+        """
+        SELECT COALESCE(SUM(soi.qty), 0)
+        FROM `tabSales Order Item` soi
+        JOIN `tabSales Order` so ON so.name = soi.parent
+        WHERE soi.item_code = %s
+          AND so.docstatus = 1
+          AND so.status NOT IN ('Completed', 'Cancelled')
+        """,
+        item_code,
+    )
+    return flt(result[0][0] if result else 0)
 
 
 # --------------------------------------------------------------------------- #

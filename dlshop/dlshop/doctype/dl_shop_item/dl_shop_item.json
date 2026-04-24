@@ -49,6 +49,9 @@
   "custom_price",
   "section_break_p2",
   "sale_price",
+  "section_break_virtual",
+  "allow_virtual_stock",
+  "virtual_stock_limit",
   "column_break_p3",
   "show_original_price",
   "specifications_tab",
@@ -73,72 +76,359 @@
   "average_rating"
  ],
  "fields": [
-  {"fieldname": "basic_tab", "fieldtype": "Tab Break", "label": "Basic Info"},
-  {"fieldname": "item_code", "fieldtype": "Link", "label": "ERPNext Item", "options": "Item", "reqd": 1, "in_list_view": 1},
-  {"fieldname": "column_break_b1", "fieldtype": "Column Break"},
-  {"fieldname": "route", "fieldtype": "Data", "label": "URL Route (slug)", "reqd": 1, "unique": 1},
-  {"fieldname": "section_break_b2", "fieldtype": "Section Break"},
-  {"fieldname": "web_item_name_en", "fieldtype": "Data", "label": "Product Name (English)", "reqd": 1, "in_list_view": 1},
-  {"fieldname": "column_break_b3", "fieldtype": "Column Break"},
-  {"fieldname": "web_item_name_ar", "fieldtype": "Data", "label": "اسم المنتج (عربي)", "reqd": 1},
-  {"fieldname": "section_break_b4", "fieldtype": "Section Break"},
-  {"fieldname": "item_group", "fieldtype": "Link", "label": "Item Group", "options": "Item Group", "in_list_view": 1},
-  {"fieldname": "column_break_b5", "fieldtype": "Column Break"},
-  {"fieldname": "brand", "fieldtype": "Link", "label": "Brand", "options": "Brand"},
-  {"fieldname": "section_break_b6", "fieldtype": "Section Break"},
-  {"fieldname": "is_published", "fieldtype": "Check", "label": "Published", "default": "0", "in_list_view": 1},
-  {"fieldname": "column_break_b7", "fieldtype": "Column Break"},
-  {"fieldname": "is_featured", "fieldtype": "Check", "label": "Featured"},
-  {"fieldname": "column_break_b8", "fieldtype": "Column Break"},
-  {"fieldname": "is_new_arrival", "fieldtype": "Check", "label": "New Arrival"},
-  {"fieldname": "column_break_b9", "fieldtype": "Column Break"},
-  {"fieldname": "is_on_sale", "fieldtype": "Check", "label": "On Sale"},
-  {"fieldname": "section_break_b10", "fieldtype": "Section Break"},
-  {"fieldname": "sort_order", "fieldtype": "Int", "label": "Sort Order", "default": "0"},
-  {"fieldname": "column_break_b11", "fieldtype": "Column Break"},
-  {"fieldname": "badge_text_en", "fieldtype": "Data", "label": "Badge Text (EN)"},
-  {"fieldname": "column_break_b12", "fieldtype": "Column Break"},
-  {"fieldname": "badge_text_ar", "fieldtype": "Data", "label": "نص الشارة (AR)"},
-  {"fieldname": "images_tab", "fieldtype": "Tab Break", "label": "Images"},
-  {"fieldname": "featured_image", "fieldtype": "Attach Image", "label": "Main Product Image"},
-  {"fieldname": "section_break_img2", "fieldtype": "Section Break"},
-  {"fieldname": "additional_images", "fieldtype": "Table", "label": "Additional Images", "options": "DL Shop Item Image"},
-  {"fieldname": "description_tab", "fieldtype": "Tab Break", "label": "Description"},
-  {"fieldname": "short_description_en", "fieldtype": "Small Text", "label": "Short Description (English)"},
-  {"fieldname": "column_break_d1", "fieldtype": "Column Break"},
-  {"fieldname": "short_description_ar", "fieldtype": "Small Text", "label": "الوصف المختصر (عربي)"},
-  {"fieldname": "section_break_d2", "fieldtype": "Section Break"},
-  {"fieldname": "description_en", "fieldtype": "Text Editor", "label": "Full Description (English)"},
-  {"fieldname": "section_break_d3", "fieldtype": "Section Break"},
-  {"fieldname": "description_ar", "fieldtype": "Text Editor", "label": "الوصف الكامل (عربي)"},
-  {"fieldname": "pricing_tab", "fieldtype": "Tab Break", "label": "Pricing"},
-  {"fieldname": "custom_price_enabled", "fieldtype": "Check", "label": "Override Price"},
-  {"fieldname": "column_break_p1", "fieldtype": "Column Break"},
-  {"fieldname": "custom_price", "fieldtype": "Currency", "label": "Custom Price (overrides ERPNext price list)"},
-  {"fieldname": "section_break_p2", "fieldtype": "Section Break"},
-  {"fieldname": "sale_price", "fieldtype": "Currency", "label": "Sale Price (displayed as discounted)"},
-  {"fieldname": "column_break_p3", "fieldtype": "Column Break"},
-  {"fieldname": "show_original_price", "fieldtype": "Check", "label": "Show Original Price Crossed Out", "default": "1"},
-  {"fieldname": "specifications_tab", "fieldtype": "Tab Break", "label": "Specifications"},
-  {"fieldname": "specifications", "fieldtype": "Table", "label": "Specifications", "options": "DL Shop Item Specification"},
-  {"fieldname": "seo_tab", "fieldtype": "Tab Break", "label": "SEO"},
-  {"fieldname": "meta_title_en", "fieldtype": "Data", "label": "Meta Title (EN)", "length": 70},
-  {"fieldname": "column_break_seo1", "fieldtype": "Column Break"},
-  {"fieldname": "meta_title_ar", "fieldtype": "Data", "label": "العنوان التعريفي (AR)", "length": 70},
-  {"fieldname": "section_break_seo2", "fieldtype": "Section Break"},
-  {"fieldname": "meta_description_en", "fieldtype": "Small Text", "label": "Meta Description (EN)"},
-  {"fieldname": "column_break_seo3", "fieldtype": "Column Break"},
-  {"fieldname": "meta_description_ar", "fieldtype": "Small Text", "label": "الوصف التعريفي (AR)"},
-  {"fieldname": "analytics_tab", "fieldtype": "Tab Break", "label": "Analytics"},
-  {"fieldname": "view_count", "fieldtype": "Int", "label": "Total Views", "read_only": 1, "default": "0"},
-  {"fieldname": "column_break_ana1", "fieldtype": "Column Break"},
-  {"fieldname": "purchase_count", "fieldtype": "Int", "label": "Times Purchased", "read_only": 1, "default": "0"},
-  {"fieldname": "column_break_ana2", "fieldtype": "Column Break"},
-  {"fieldname": "wishlist_count", "fieldtype": "Int", "label": "Wishlisted", "read_only": 1, "default": "0"},
-  {"fieldname": "section_break_ana2", "fieldtype": "Section Break"},
-  {"fieldname": "review_count", "fieldtype": "Int", "label": "Reviews", "read_only": 1, "default": "0"},
-  {"fieldname": "column_break_ana3", "fieldtype": "Column Break"},
-  {"fieldname": "average_rating", "fieldtype": "Float", "label": "Average Rating", "read_only": 1, "default": "0", "precision": "1"}
+  {
+   "fieldname": "basic_tab",
+   "fieldtype": "Tab Break",
+   "label": "Basic Info"
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "ERPNext Item",
+   "options": "Item",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_b1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Data",
+   "label": "URL Route (slug)",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_b2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "web_item_name_en",
+   "fieldtype": "Data",
+   "label": "Product Name (English)",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_b3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "web_item_name_ar",
+   "fieldtype": "Data",
+   "label": "اسم المنتج (عربي)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_b4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_b5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "brand",
+   "fieldtype": "Link",
+   "label": "Brand",
+   "options": "Brand"
+  },
+  {
+   "fieldname": "section_break_b6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "is_published",
+   "fieldtype": "Check",
+   "label": "Published",
+   "default": "0",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_b7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_featured",
+   "fieldtype": "Check",
+   "label": "Featured"
+  },
+  {
+   "fieldname": "column_break_b8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_new_arrival",
+   "fieldtype": "Check",
+   "label": "New Arrival"
+  },
+  {
+   "fieldname": "column_break_b9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_on_sale",
+   "fieldtype": "Check",
+   "label": "On Sale"
+  },
+  {
+   "fieldname": "section_break_b10",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "sort_order",
+   "fieldtype": "Int",
+   "label": "Sort Order",
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_b11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "badge_text_en",
+   "fieldtype": "Data",
+   "label": "Badge Text (EN)"
+  },
+  {
+   "fieldname": "column_break_b12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "badge_text_ar",
+   "fieldtype": "Data",
+   "label": "نص الشارة (AR)"
+  },
+  {
+   "fieldname": "images_tab",
+   "fieldtype": "Tab Break",
+   "label": "Images"
+  },
+  {
+   "fieldname": "featured_image",
+   "fieldtype": "Attach Image",
+   "label": "Main Product Image"
+  },
+  {
+   "fieldname": "section_break_img2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "additional_images",
+   "fieldtype": "Table",
+   "label": "Additional Images",
+   "options": "DL Shop Item Image"
+  },
+  {
+   "fieldname": "description_tab",
+   "fieldtype": "Tab Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "short_description_en",
+   "fieldtype": "Small Text",
+   "label": "Short Description (English)"
+  },
+  {
+   "fieldname": "column_break_d1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "short_description_ar",
+   "fieldtype": "Small Text",
+   "label": "الوصف المختصر (عربي)"
+  },
+  {
+   "fieldname": "section_break_d2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "description_en",
+   "fieldtype": "Text Editor",
+   "label": "Full Description (English)"
+  },
+  {
+   "fieldname": "section_break_d3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "description_ar",
+   "fieldtype": "Text Editor",
+   "label": "الوصف الكامل (عربي)"
+  },
+  {
+   "fieldname": "pricing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "custom_price_enabled",
+   "fieldtype": "Check",
+   "label": "Override Price"
+  },
+  {
+   "fieldname": "column_break_p1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "custom_price",
+   "fieldtype": "Currency",
+   "label": "Custom Price (overrides ERPNext price list)"
+  },
+  {
+   "fieldname": "section_break_p2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "sale_price",
+   "fieldtype": "Currency",
+   "label": "Sale Price (displayed as discounted)"
+  },
+  {
+   "fieldname": "section_break_virtual",
+   "fieldtype": "Section Break",
+   "label": "Virtual Stock"
+  },
+  {
+   "fieldname": "allow_virtual_stock",
+   "fieldtype": "Check",
+   "label": "Allow Virtual Stock",
+   "description": "When enabled, physical warehouse stock is ignored. Orders are accepted based on the virtual stock limit below."
+  },
+  {
+   "fieldname": "virtual_stock_limit",
+   "fieldtype": "Int",
+   "label": "Virtual Stock Limit",
+   "description": "Maximum number of units that can be ordered. Set to 0 for unlimited.",
+   "default": "0",
+   "depends_on": "eval:doc.allow_virtual_stock == 1"
+  },
+  {
+   "fieldname": "column_break_p3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "show_original_price",
+   "fieldtype": "Check",
+   "label": "Show Original Price Crossed Out",
+   "default": "1"
+  },
+  {
+   "fieldname": "specifications_tab",
+   "fieldtype": "Tab Break",
+   "label": "Specifications"
+  },
+  {
+   "fieldname": "specifications",
+   "fieldtype": "Table",
+   "label": "Specifications",
+   "options": "DL Shop Item Specification"
+  },
+  {
+   "fieldname": "seo_tab",
+   "fieldtype": "Tab Break",
+   "label": "SEO"
+  },
+  {
+   "fieldname": "meta_title_en",
+   "fieldtype": "Data",
+   "label": "Meta Title (EN)",
+   "length": 70
+  },
+  {
+   "fieldname": "column_break_seo1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "meta_title_ar",
+   "fieldtype": "Data",
+   "label": "العنوان التعريفي (AR)",
+   "length": 70
+  },
+  {
+   "fieldname": "section_break_seo2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "meta_description_en",
+   "fieldtype": "Small Text",
+   "label": "Meta Description (EN)"
+  },
+  {
+   "fieldname": "column_break_seo3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "meta_description_ar",
+   "fieldtype": "Small Text",
+   "label": "الوصف التعريفي (AR)"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "view_count",
+   "fieldtype": "Int",
+   "label": "Total Views",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_ana1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_count",
+   "fieldtype": "Int",
+   "label": "Times Purchased",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_ana2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "wishlist_count",
+   "fieldtype": "Int",
+   "label": "Wishlisted",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "section_break_ana2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "review_count",
+   "fieldtype": "Int",
+   "label": "Reviews",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_ana3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "average_rating",
+   "fieldtype": "Float",
+   "label": "Average Rating",
+   "read_only": 1,
+   "default": "0",
+   "precision": "1"
+  }
  ],
  "has_web_view": 1,
  "allow_guest_to_view": 1,
@@ -150,9 +440,23 @@
  "autoname": "field:route",
  "owner": "Administrator",
  "permissions": [
-  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
-  {"role": "Website Manager", "read": 1, "write": 1, "create": 1},
-  {"role": "All", "read": 1}
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Website Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "All",
+   "read": 1
+  }
  ],
  "sort_field": "sort_order",
  "sort_order": "ASC",

@@ -273,6 +273,26 @@ def place_order(
 
     frappe.db.commit()
 
+    # Order Approval workflow (optional, controlled by DL Shop Settings)
+    if settings.enable_order_approval:
+        frappe.get_doc({
+            "doctype": "DL Shop Order Approval",
+            "sales_order": so.name,
+            "customer": customer,
+            "customer_email": frappe.session.user if frappe.session.user != "Guest" else (guest_email or ""),
+            "payment_method": payment_method.upper(),
+            "grand_total": so.grand_total,
+            "approval_status": "Pending",
+        }).insert(ignore_permissions=True)
+        frappe.db.commit()
+        return {
+            "success": True,
+            "order_id": so.name,
+            "grand_total": so.grand_total,
+            "payment_method": payment_method,
+            "approval_required": True,
+        }
+
     if payment_method == "tabby":
         redirect_url = _create_tabby_payment_request(so)
         if redirect_url:
@@ -290,6 +310,45 @@ def place_order(
         "grand_total": so.grand_total,
         "payment_method": payment_method,
     }
+
+
+@frappe.whitelist(allow_guest=True)
+def get_payment_url(order_name):
+    """Called after approval — initiate payment for an approved order."""
+    order_name = (order_name or "").strip()[:140]
+    if not order_name:
+        frappe.throw(_("Order not specified"))
+
+    approval = frappe.db.get_value(
+        "DL Shop Order Approval",
+        {"sales_order": order_name},
+        ["name", "approval_status", "payment_method", "customer_email"],
+        as_dict=True,
+    )
+    if not approval:
+        frappe.throw(_("No approval record found for this order"))
+    if approval.approval_status != "Approved":
+        frappe.throw(_("Order has not been approved yet"))
+
+    # Verify ownership: logged-in user or guest with matching email
+    if frappe.session.user != "Guest":
+        user_email = frappe.session.user
+    else:
+        frappe.throw(_("Please login to complete payment"))
+
+    if approval.customer_email and approval.customer_email != user_email:
+        frappe.throw(_("Not authorized"), frappe.PermissionError)
+
+    so = frappe.get_doc("Sales Order", order_name)
+
+    if (approval.payment_method or "").upper() == "TABBY":
+        redirect_url = _create_tabby_payment_request(so)
+        if redirect_url:
+            return {"success": True, "payment_method": "tabby", "redirect_url": redirect_url}
+        frappe.throw(_("Could not initiate Tabby payment. Please contact support."))
+
+    # COD — nothing more to do; order is confirmed
+    return {"success": True, "payment_method": "cod"}
 
 
 def _get_default_customer_group():
