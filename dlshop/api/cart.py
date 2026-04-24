@@ -42,7 +42,7 @@ def add_to_cart(item_code, qty=1, variant_item_code=None):
     dl_item = frappe.db.get_value(
         "DL Shop Item",
         {"item_code": target_item, "is_published": 1},
-        ["allow_virtual_stock", "virtual_stock_limit"],
+        ["allow_virtual_stock", "virtual_stock_limit", "custom_price", "custom_price_enabled", "is_on_sale", "sale_price"],
         as_dict=True,
     ) or frappe._dict()
     if not is_in_stock(target_item, settings.default_warehouse, settings, dl_item):
@@ -54,7 +54,10 @@ def add_to_cart(item_code, qty=1, variant_item_code=None):
         existing.qty = new_qty
         existing.amount = new_qty * flt(existing.rate or get_item_price(target_item, settings))
     else:
-        price = get_item_price(target_item, settings)
+        from dlshop.utils import get_display_price
+        price, _orig, _disc = get_display_price(frappe._dict({**dl_item, "item_code": target_item}), settings)
+        if not price:
+            price = get_item_price(target_item, settings)
         image = frappe.db.get_value("Item", target_item, "image")
         cart.append(
             "items",
