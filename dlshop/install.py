@@ -13,7 +13,13 @@ def after_install():
 
 
 def fix_desktop_icon():
-    """Ensure the DL Shop desktop icon is visible on the main desk (standard=1)."""
+    """Ensure the DL Shop desktop icon is visible on the main desk.
+
+    Called from both after_install (may be a no-op if icons not created yet)
+    and after_migrate (runs after auto_generate_icons_and_sidebar creates them).
+    """
+    if not frappe.db.exists("Desktop Icon", "DL Shop"):
+        return
     frappe.db.set_value(
         "Desktop Icon", "DL Shop",
         {
@@ -25,6 +31,7 @@ def fix_desktop_icon():
         },
         update_modified=False,
     )
+    frappe.db.commit()
 
 
 def create_default_settings():

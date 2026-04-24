@@ -44,6 +44,7 @@ fixtures = [
 
 # Installation
 after_install = "dlshop.install.after_install"
+after_migrate = ["dlshop.install.fix_desktop_icon"]
 
 # Document Events
 doc_events = {
