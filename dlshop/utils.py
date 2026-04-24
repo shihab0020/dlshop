@@ -47,16 +47,17 @@ _LOCALIZABLE_PAGES = {"shop", "cart", "checkout", "search", "account", "auth"}
 
 def localize_url(url, lang):
     """Inject lang segment into internal shop URLs.
-    /shop → /shop/ar  |  /shop?is_on_sale=1 → /shop/ar?is_on_sale=1
+    /shop → /shop/en  |  /shop → /shop/ar
+    /shop/en/phones → /shop/ar/phones  (lang swap)
     Non-shop URLs (external links, /about, etc.) are returned unchanged.
     """
-    if not url or not url.startswith("/") or lang == "en":
+    if not url or not url.startswith("/"):
         return url
     path, _, qs = url.partition("?")
     parts = path.strip("/").split("/")
     if not parts or parts[0] not in _LOCALIZABLE_PAGES:
         return url
-    # Only insert lang if not already there
+    # Replace existing lang segment, or insert one after the page root
     if len(parts) > 1 and parts[1] in ("ar", "en"):
         parts[1] = lang
     else:
