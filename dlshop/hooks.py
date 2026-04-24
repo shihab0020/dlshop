@@ -14,8 +14,8 @@ website_generators = ["DL Shop Item"]
 add_to_apps_screen = [
     {
         "name": "dlshop",
-        "logo": "/assets/dlshop/images/logo.png",
-        "title": "Dlits Shop",
+        "logo": "/assets/dlshop/images/logo.svg",
+        "title": "DL Shop",
         "route": "/shop",
         "has_permission": "dlshop.utils.has_app_permission",
     }
