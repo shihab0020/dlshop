@@ -7,8 +7,24 @@ def after_install():
     create_default_settings()
     create_default_nav_items()
     create_default_footer()
+    fix_desktop_icon()
     frappe.db.commit()
     print("✓ DL Shop installed successfully")
+
+
+def fix_desktop_icon():
+    """Ensure the DL Shop desktop icon is visible on the main desk (standard=1)."""
+    frappe.db.set_value(
+        "Desktop Icon", "DL Shop",
+        {
+            "standard": 1,
+            "hidden": 0,
+            "app": "dlshop",
+            "icon": "retail",
+            "logo_url": "/assets/dlshop/images/desk_icon.svg",
+        },
+        update_modified=False,
+    )
 
 
 def create_default_settings():
