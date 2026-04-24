@@ -4,6 +4,9 @@ app_publisher = "shihab0020"
 app_description = "Dlits Shopping Cart and Online App"
 app_email = "shihab0020@gmail.com"
 app_license = "mit"
+app_icon_url = "/assets/dlshop/images/logo.svg"
+app_icon_title = "Dlits Shop"
+app_icon_route = "/desk/dl-shop"
 
 # Website Generators
 # ------------------
