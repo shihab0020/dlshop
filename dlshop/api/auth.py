@@ -4,15 +4,7 @@ import frappe
 from frappe import _
 from frappe.utils import validate_email_address
 
-from dlshop.utils import _rate_limit
-
-
-def _get_default_customer_group():
-    """Return the first valid Customer Group, preferring common names."""
-    for name in ("Individual", "Retail", "Wholesale", "All Customer Groups"):
-        if frappe.db.exists("Customer Group", name):
-            return name
-    return frappe.db.get_value("Customer Group", {"is_group": 0}, "name") or "Individual"
+from dlshop.utils import _rate_limit, get_default_customer_group
 
 
 @frappe.whitelist(allow_guest=True)
@@ -71,7 +63,7 @@ def register_customer(full_name, email, phone, password, confirm_password,
             "doctype": "Customer",
             "customer_name": full_name,
             "customer_type": "Individual",
-            "customer_group": _get_default_customer_group(),
+            "customer_group": get_default_customer_group(),
             "territory": "Saudi Arabia",
         })
         customer.insert(ignore_permissions=True)
@@ -123,6 +115,9 @@ def login_customer(email, password, redirect_to=None):
     email = (email or "").strip().lower()[:200]
     if not email or not password:
         return {"success": False, "message": _("Email and password are required")}
+    # Only accept internal paths to prevent open-redirect
+    if redirect_to and not (redirect_to.startswith("/") and not redirect_to.startswith("//")):
+        redirect_to = None
     try:
         frappe.local.login_manager.authenticate(user=email, pwd=password)
         frappe.local.login_manager.post_login()

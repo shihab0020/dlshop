@@ -27,9 +27,17 @@ def submit_inquiry(customer_name, message, customer_email=None, customer_phone=N
     if customer_email and not validate_email_address(customer_email):
         frappe.throw(_("Invalid email address"))
 
-    # If logged in, fill in email from session
-    if frappe.session.user != "Guest" and not customer_email:
-        customer_email = frappe.session.user
+    # If logged in, fill in email from session and validate order ownership
+    if frappe.session.user != "Guest":
+        if not customer_email:
+            customer_email = frappe.session.user
+        if order_id:
+            customer = frappe.db.get_value("Customer", {"email_id": frappe.session.user}, "name")
+            owned = customer and frappe.db.get_value(
+                "Sales Order", {"name": order_id, "customer": customer}, "name"
+            )
+            if not owned:
+                frappe.throw(_("Invalid order reference"))
 
     doc = frappe.get_doc({
         "doctype": "DL Shop Inquiry",

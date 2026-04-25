@@ -4,7 +4,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt, now_datetime, validate_email_address
 
-from dlshop.utils import get_settings, get_cart_session_id, recalculate_cart, get_or_create_cart
+from dlshop.utils import get_settings, get_cart_session_id, recalculate_cart, get_or_create_cart, get_default_customer_group
 
 _ALLOWED_PAYMENT_METHODS = {"cod", "tabby"}
 _ALLOWED_FULFILLMENT = {"delivery", "pickup"}
@@ -175,8 +175,19 @@ def place_order(
     )
     if not cart_name:
         frappe.throw(_("Your cart is empty"))
+
+    # Atomically flip status to 'Processing' so a double-submit can't create
+    # two Sales Orders from the same cart.
+    frappe.db.sql(
+        "UPDATE `tabDL Shop Cart` SET status='Processing' WHERE name=%s AND status='Active'",
+        cart_name,
+    )
+    if not frappe.db.sql("SELECT ROW_COUNT()")[0][0]:
+        frappe.throw(_("Your order is already being processed. Please wait."))
+
     cart = frappe.get_doc("DL Shop Cart", cart_name)
     if not cart.items:
+        frappe.db.set_value("DL Shop Cart", cart_name, "status", "Active")
         frappe.throw(_("Your cart is empty"))
 
     if frappe.session.user == "Guest":
@@ -248,8 +259,14 @@ def place_order(
             "tax_amount": settings.cod_charge,
         })
 
-    so.insert(ignore_permissions=True)
-    so.submit()
+    try:
+        so.insert(ignore_permissions=True)
+        so.submit()
+    except Exception:
+        # Release the cart lock so the user can retry
+        frappe.db.set_value("DL Shop Cart", cart_name, "status", "Active")
+        frappe.db.commit()
+        raise
 
     # Log visitor country for geo analytics (best-effort, never raises)
     try:
@@ -358,13 +375,6 @@ def get_payment_url(order_name):
     return {"success": True, "payment_method": "cod"}
 
 
-def _get_default_customer_group():
-    for name in ("Individual", "Retail", "Wholesale", "All Customer Groups"):
-        if frappe.db.exists("Customer Group", name):
-            return name
-    return frappe.db.get_value("Customer Group", {"is_group": 0}, "name") or "Individual"
-
-
 def _get_or_create_customer():
     user = frappe.session.user
     if user == "Guest":
@@ -376,7 +386,7 @@ def _get_or_create_customer():
             "doctype": "Customer",
             "customer_name": full_name,
             "customer_type": "Individual",
-            "customer_group": _get_default_customer_group(),
+            "customer_group": get_default_customer_group(),
             "email_id": user,
         })
         cust.insert(ignore_permissions=True)
@@ -393,7 +403,7 @@ def _get_or_create_guest_customer(name, email, phone=None):
         "doctype": "Customer",
         "customer_name": name or email,
         "customer_type": "Individual",
-        "customer_group": _get_default_customer_group(),
+        "customer_group": get_default_customer_group(),
         "email_id": email,
         "mobile_no": phone,
     })

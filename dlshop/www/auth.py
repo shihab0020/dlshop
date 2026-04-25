@@ -20,4 +20,9 @@ def get_context(context):
 
     # Which tab to show: login or register
     context.active_tab = frappe.form_dict.get("tab", "login")
-    context.redirect_to = frappe.form_dict.get("redirect-to", f"/account/{lang}")
+    raw_redirect = frappe.form_dict.get("redirect-to", "")
+    # Only accept internal paths — must start with "/" but not "//" (open-redirect guard)
+    context.redirect_to = (
+        raw_redirect if raw_redirect.startswith("/") and not raw_redirect.startswith("//")
+        else f"/account/{lang}"
+    )

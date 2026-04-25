@@ -84,7 +84,7 @@ def get_products(
         page_length=page_size,
     )
 
-    from dlshop.utils import is_in_stock, get_settings as _gs
+    from dlshop.utils import is_in_stock
     for item in items:
         item["name_display"] = bilingual(item["web_item_name_en"], item["web_item_name_ar"], lang)
         item["badge"] = bilingual(item["badge_text_en"], item["badge_text_ar"], lang)

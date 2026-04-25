@@ -560,14 +560,15 @@ def get_featured_items(limit=8, lang=None):
 
 
 # --------------------------------------------------------------------------- #
-# Permission helpers
+# ERPNext master-data helpers
 # --------------------------------------------------------------------------- #
 
-def get_cart_permission_query(user):
-    if not user:
-        user = frappe.session.user
-    session_id = user if user != "Guest" else frappe.session.sid
-    return f"`tabDL Shop Cart`.`session_id` = {frappe.db.escape(session_id)}"
+def get_default_customer_group():
+    """Return the first valid Customer Group, preferring common retail names."""
+    for name in ("Individual", "Retail", "Wholesale", "All Customer Groups"):
+        if frappe.db.exists("Customer Group", name):
+            return name
+    return frappe.db.get_value("Customer Group", {"is_group": 0}, "name") or "Individual"
 
 
 # --------------------------------------------------------------------------- #

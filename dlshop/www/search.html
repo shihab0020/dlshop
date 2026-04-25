@@ -32,9 +32,9 @@
 {% block page_scripts %}
 <script>
 var dlSearchConfig = {
-  lang: '{{ _lang }}',
-  q: '{{ q | e }}',
-  currency: '{{ shop_settings.default_currency or "SAR" }}',
+  lang: {{ _lang | tojson }},
+  q: {{ q | tojson }},
+  currency: {{ (shop_settings.default_currency or "SAR") | tojson }},
 };
 </script>
 <script src="/assets/dlshop/js/shop.js?v=9"></script>
