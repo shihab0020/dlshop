@@ -101,6 +101,13 @@ website_route_rules = [
     # Auth (login + register combined page)
     {"from_route": "/auth/ar", "to_route": "auth"},
     {"from_route": "/auth/en", "to_route": "auth"},
+    # Static info pages
+    {"from_route": "/contact/ar", "to_route": "contact"},
+    {"from_route": "/contact/en", "to_route": "contact"},
+    {"from_route": "/privacy/ar", "to_route": "privacy"},
+    {"from_route": "/privacy/en", "to_route": "privacy"},
+    {"from_route": "/terms/ar", "to_route": "terms"},
+    {"from_route": "/terms/en", "to_route": "terms"},
     # Plain /account/order/<name> (no lang suffix)
     {"from_route": "/account/order/<name>", "to_route": "account/order"},
     # Generic category (no lang suffix, backward-compat)

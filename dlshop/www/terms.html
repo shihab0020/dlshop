@@ -1,0 +1,42 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'شروط الاستخدام' if _lang == 'ar' else 'Terms of Service' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container py-5" style="max-width:800px;">
+  <h1 class="fw-bold mb-2">{{ 'شروط الاستخدام' if _lang == 'ar' else 'Terms of Service' }}</h1>
+  <p class="text-muted small mb-5">{{ 'آخر تحديث: ' + _settings.site_name_ar if _lang == 'ar' else 'Last updated by ' + _settings.site_name_en }}</p>
+
+  {% if _lang == 'ar' %}
+  <h5 class="fw-semibold mt-4">١. القبول بالشروط</h5>
+  <p>باستخدامك هذا الموقع، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على أي جزء منها، يُرجى عدم استخدام الموقع.</p>
+
+  <h5 class="fw-semibold mt-4">٢. الطلبات والدفع</h5>
+  <p>جميع الطلبات تخضع للتوافر. نحتفظ بحق إلغاء أي طلب في حالة وجود خطأ في التسعير أو عدم توافر المنتج. سيتم إخطارك فورًا وإعادة المبلغ المدفوع.</p>
+
+  <h5 class="fw-semibold mt-4">٣. الشحن والتوصيل</h5>
+  <p>مواعيد التوصيل تقديرية وقد تتأثر بعوامل خارجة عن إرادتنا. لمزيد من التفاصيل تواصل معنا.</p>
+
+  <h5 class="fw-semibold mt-4">٤. الإرجاع والاستبدال</h5>
+  <p>يمكن إرجاع المنتجات خلال المدة المحددة في سياسة الإرجاع، بشرط أن تكون في حالتها الأصلية وغير مستخدمة.</p>
+
+  <h5 class="fw-semibold mt-4">٥. تعديل الشروط</h5>
+  <p>نحتفظ بحق تعديل هذه الشروط في أي وقت. سيتم إخطارك بأي تغييرات جوهرية عبر البريد الإلكتروني.</p>
+  {% else %}
+  <h5 class="fw-semibold mt-4">1. Acceptance of Terms</h5>
+  <p>By using this website, you agree to be bound by these terms and conditions. If you do not agree to any part of them, please do not use the site.</p>
+
+  <h5 class="fw-semibold mt-4">2. Orders and Payment</h5>
+  <p>All orders are subject to availability. We reserve the right to cancel any order in the event of pricing errors or product unavailability. You will be notified promptly and any payment refunded.</p>
+
+  <h5 class="fw-semibold mt-4">3. Shipping and Delivery</h5>
+  <p>Delivery dates are estimates and may be affected by factors beyond our control. Contact us for more details.</p>
+
+  <h5 class="fw-semibold mt-4">4. Returns and Exchanges</h5>
+  <p>Products may be returned within the period specified in our returns policy, provided they are in their original, unused condition.</p>
+
+  <h5 class="fw-semibold mt-4">5. Modifications</h5>
+  <p>We reserve the right to modify these terms at any time. You will be notified of material changes by email.</p>
+  {% endif %}
+</div>
+{% endblock %}

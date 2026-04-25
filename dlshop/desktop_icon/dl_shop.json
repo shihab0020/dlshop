@@ -1,0 +1,12 @@
+{
+ "app": "dlshop",
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon": "retail",
+ "icon_type": "App",
+ "label": "DL Shop",
+ "link": "/desk/dl-shop",
+ "logo_url": "/assets/dlshop/images/desk_icon.svg",
+ "name": "DL Shop",
+ "standard": 1
+}

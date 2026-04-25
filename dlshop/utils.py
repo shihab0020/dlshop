@@ -42,14 +42,19 @@ def get_current_lang():
     return "en"
 
 
-_LOCALIZABLE_PAGES = {"shop", "cart", "checkout", "search", "account", "auth"}
+# Pages where lang goes AFTER the root: /shop/en, /shop/en/phones
+_LANG_AFTER_ROOT = {"shop", "cart", "checkout", "search", "auth"}
+# Pages where lang goes AT THE END: /account/orders/en, /contact/en
+_LANG_AT_END = {"account", "contact", "privacy", "terms"}
+_LOCALIZABLE_PAGES = _LANG_AFTER_ROOT | _LANG_AT_END
 
 
 def localize_url(url, lang):
     """Inject lang segment into internal shop URLs.
-    /shop → /shop/en  |  /shop → /shop/ar
-    /shop/en/phones → /shop/ar/phones  (lang swap)
-    Non-shop URLs (external links, /about, etc.) are returned unchanged.
+
+    /shop → /shop/en           /shop/phones → /shop/en/phones   (lang after root)
+    /account → /account/en     /account/orders → /account/orders/en  (lang at end)
+    External URLs and unknown paths are returned unchanged.
     """
     if not url or not url.startswith("/"):
         return url
@@ -57,12 +62,19 @@ def localize_url(url, lang):
     parts = path.strip("/").split("/")
     if not parts or parts[0] not in _LOCALIZABLE_PAGES:
         return url
-    # Replace existing lang segment, or insert one after the page root
-    if len(parts) > 1 and parts[1] in ("ar", "en"):
-        parts[1] = lang
+    root = parts[0]
+    rest = parts[1:]
+    if root in _LANG_AT_END:
+        # Strip any existing lang segment (wherever it sits) then append
+        rest = [p for p in rest if p not in ("ar", "en")]
+        rest = rest + [lang]
     else:
-        parts = [parts[0], lang] + parts[1:]
-    result = "/" + "/".join(parts)
+        # Replace existing lang at position 0, or insert it there
+        if rest and rest[0] in ("ar", "en"):
+            rest[0] = lang
+        else:
+            rest = [lang] + rest
+    result = "/" + "/".join([root] + rest)
     return result + "?" + qs if qs else result
 
 

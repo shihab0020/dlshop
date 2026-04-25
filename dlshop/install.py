@@ -15,22 +15,39 @@ def after_install():
 def fix_desktop_icon():
     """Ensure the DL Shop desktop icon is visible on the main desk.
 
-    Called from both after_install (may be a no-op if icons not created yet)
-    and after_migrate (runs after auto_generate_icons_and_sidebar creates them).
+    The sentinel file dlshop/desktop_icon/dl_shop.json makes Frappe's
+    orphan-detection (model/sync.py remove_orphan_entities) find this icon
+    in the app's file tree, so it won't be deleted even with app+standard set.
     """
-    if not frappe.db.exists("Desktop Icon", "DL Shop"):
-        return
-    frappe.db.set_value(
-        "Desktop Icon", "DL Shop",
-        {
-            "standard": 1,
-            "hidden": 0,
-            "app": "dlshop",
-            "icon": "retail",
-            "logo_url": "/assets/dlshop/images/desk_icon.svg",
-        },
-        update_modified=False,
-    )
+    if frappe.db.exists("Desktop Icon", "DL Shop"):
+        frappe.db.set_value(
+            "Desktop Icon", "DL Shop",
+            {
+                "standard": 1,
+                "hidden": 0,
+                "app": "dlshop",
+                "icon": "retail",
+                "logo_url": "/assets/dlshop/images/desk_icon.svg",
+            },
+            update_modified=False,
+        )
+    else:
+        # Create fresh — fires after_install (before auto_generate_icons)
+        # or after the icon was recreated from the sentinel JSON.
+        try:
+            frappe.get_doc({
+                "doctype": "Desktop Icon",
+                "label": "DL Shop",
+                "link": "/desk/dl-shop",
+                "icon_type": "App",
+                "icon": "retail",
+                "app": "dlshop",
+                "standard": 1,
+                "hidden": 0,
+                "logo_url": "/assets/dlshop/images/desk_icon.svg",
+            }).insert(ignore_permissions=True, ignore_if_duplicate=True)
+        except Exception:
+            pass
     frappe.db.commit()
 
 

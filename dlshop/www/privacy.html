@@ -1,0 +1,36 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'سياسة الخصوصية' if _lang == 'ar' else 'Privacy Policy' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container py-5" style="max-width:800px;">
+  <h1 class="fw-bold mb-2">{{ 'سياسة الخصوصية' if _lang == 'ar' else 'Privacy Policy' }}</h1>
+  <p class="text-muted small mb-5">{{ 'آخر تحديث: ' + _settings.site_name_ar if _lang == 'ar' else 'Last updated by ' + _settings.site_name_en }}</p>
+
+  {% if _lang == 'ar' %}
+  <h5 class="fw-semibold mt-4">١. المعلومات التي نجمعها</h5>
+  <p>نجمع المعلومات التي تقدمها مباشرة عند إنشاء حساب أو إتمام طلب شراء، مثل: الاسم، البريد الإلكتروني، رقم الهاتف، وعنوان التوصيل.</p>
+
+  <h5 class="fw-semibold mt-4">٢. كيفية استخدام المعلومات</h5>
+  <p>نستخدم معلوماتك لمعالجة الطلبات، التواصل معك بشأن حسابك، وتحسين تجربتك على متجرنا. لا نبيع بياناتك لأطراف ثالثة.</p>
+
+  <h5 class="fw-semibold mt-4">٣. حفظ البيانات وأمانها</h5>
+  <p>نحرص على حماية بياناتك الشخصية باستخدام أساليب تشفير معيارية في الصناعة.</p>
+
+  <h5 class="fw-semibold mt-4">٤. حقوقك</h5>
+  <p>يحق لك طلب الاطلاع على بياناتك أو تعديلها أو حذفها في أي وقت عبر <a href="/contact/ar">التواصل معنا</a>.</p>
+  {% else %}
+  <h5 class="fw-semibold mt-4">1. Information We Collect</h5>
+  <p>We collect information you provide directly when creating an account or placing an order, such as name, email address, phone number, and shipping address.</p>
+
+  <h5 class="fw-semibold mt-4">2. How We Use Your Information</h5>
+  <p>We use your information to process orders, communicate with you about your account, and improve your shopping experience. We do not sell your data to third parties.</p>
+
+  <h5 class="fw-semibold mt-4">3. Data Security</h5>
+  <p>We protect your personal data using industry-standard encryption methods.</p>
+
+  <h5 class="fw-semibold mt-4">4. Your Rights</h5>
+  <p>You may request access to, correction of, or deletion of your data at any time by <a href="/contact/en">contacting us</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

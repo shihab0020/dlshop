@@ -1,0 +1,40 @@
+{% extends "dlshop/templates/includes/layout.html" %}
+
+{% block title %}{{ 'تواصل معنا' if _lang == 'ar' else 'Contact Us' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
+
+{% block page_content %}
+<div class="container py-5" style="max-width:720px;">
+  <h1 class="fw-bold mb-2">{{ 'تواصل معنا' if _lang == 'ar' else 'Contact Us' }}</h1>
+  <p class="text-muted mb-5">{{ 'نسعد بتواصلكم — أرسل لنا رسالة وسنرد في أقرب وقت.' if _lang == 'ar' else 'We\'d love to hear from you — send us a message and we\'ll get back to you shortly.' }}</p>
+
+  <form id="dl-contact-form">
+    <div class="mb-3">
+      <label class="form-label fw-semibold">{{ 'الاسم' if _lang == 'ar' else 'Name' }}</label>
+      <input type="text" class="form-control" name="full_name" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">{{ 'البريد الإلكتروني' if _lang == 'ar' else 'Email' }}</label>
+      <input type="email" class="form-control" name="email" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">{{ 'الرسالة' if _lang == 'ar' else 'Message' }}</label>
+      <textarea class="form-control" name="message" rows="5" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary px-4">
+      {{ 'إرسال' if _lang == 'ar' else 'Send Message' }}
+    </button>
+    <div id="dl-contact-success" class="alert alert-success mt-3 d-none">
+      {{ 'تم إرسال رسالتك بنجاح، شكرًا لتواصلك معنا!' if _lang == 'ar' else 'Your message has been sent. Thank you for reaching out!' }}
+    </div>
+  </form>
+</div>
+
+<script>
+document.getElementById('dl-contact-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  // Placeholder: wire to frappe.call or your preferred contact handler
+  document.getElementById('dl-contact-success').classList.remove('d-none');
+  this.reset();
+});
+</script>
+{% endblock %}
