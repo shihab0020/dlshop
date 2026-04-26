@@ -782,6 +782,10 @@
    "role": "Website Manager",
    "read": 1,
    "write": 1
+  },
+  {
+   "role": "Guest",
+   "read": 1
   }
  ],
  "sort_field": "modified",

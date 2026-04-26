@@ -50,12 +50,13 @@ def get_context(context):
     if not category_route:
         _s = get_settings()
 
-        # Flash deals (on-sale items)
+        # Flash deals — only items explicitly marked as Flash Deal
         _flash = frappe.get_all(
             "DL Shop Item",
-            filters={"is_published": 1, "is_on_sale": 1, "sale_price": [">", 0]},
+            filters={"is_published": 1, "is_flash_deal": 1},
             fields=["item_code", "web_item_name_en", "web_item_name_ar", "featured_image",
-                    "route", "sale_price", "is_on_sale", "badge_text_en", "badge_text_ar"],
+                    "route", "sale_price", "is_on_sale", "badge_text_en", "badge_text_ar",
+                    "custom_price", "custom_price_enabled"],
             order_by="sort_order asc",
             limit=12,
         )
@@ -72,7 +73,8 @@ def get_context(context):
             "DL Shop Item",
             filters={"is_published": 1, "is_new_arrival": 1},
             fields=["item_code", "web_item_name_en", "web_item_name_ar", "featured_image",
-                    "route", "sale_price", "is_on_sale", "badge_text_en", "badge_text_ar"],
+                    "route", "sale_price", "is_on_sale", "badge_text_en", "badge_text_ar",
+                    "custom_price", "custom_price_enabled"],
             order_by="creation desc",
             limit=12,
         )

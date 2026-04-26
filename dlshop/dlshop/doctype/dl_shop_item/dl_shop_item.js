@@ -22,4 +22,11 @@
     }
 })();
 
-frappe.ui.form.on('DL Shop Item', {});
+frappe.ui.form.on('DL Shop Item', {
+    refresh: function (frm) {
+        if (!frm.is_new() && frm.doc.route) {
+            frm.add_web_link(`/shop/en/product/${frm.doc.route}`, __('View (English)'));
+            frm.add_web_link(`/shop/ar/product/${frm.doc.route}`, __('View (عربي)'));
+        }
+    }
+});

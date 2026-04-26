@@ -100,6 +100,9 @@
         if (countEl) countEl.textContent = (lang === 'ar' ? 'عرض ' : 'Showing ') + data.items.length + (lang === 'ar' ? ' من ' : ' of ') + data.total + (lang === 'ar' ? ' منتج' : ' products');
         if (paginationEl) renderPagination(paginationEl, data.page, data.total_pages);
         loadBrandFilters();
+      },
+      error: function () {
+        container.innerHTML = '<div class="col-12 text-center py-5 text-muted"><i class="fa fa-box-open fa-2x d-block mb-2"></i>' + (lang === 'ar' ? 'لا توجد منتجات' : 'No products found') + '</div>';
       }
     });
   };
@@ -180,8 +183,16 @@
       });
     }
 
-    /* Initial load */
-    if (document.getElementById('dl-products-grid')) window.dlLoadProducts();
+    /* Initial load — defer until Frappe boot is complete (csrf_token ready).
+       On LAN this fires instantly; through Cloudflare the boot round-trip
+       completes after DOMContentLoaded, which caused frappe.call to fail. */
+    if (document.getElementById('dl-products-grid')) {
+      if (typeof frappe !== 'undefined' && typeof frappe.ready === 'function') {
+        frappe.ready(window.dlLoadProducts);
+      } else {
+        window.dlLoadProducts();
+      }
+    }
 
     /* Flash deals countdown to midnight */
     initCountdown();

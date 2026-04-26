@@ -1,6 +1,6 @@
 import re
 import frappe
-from frappe.website.website_generator import WebsiteGenerator
+from frappe.model.document import Document
 
 
 def _slugify(text):
@@ -10,13 +10,7 @@ def _slugify(text):
     return re.sub(r"-+", "-", text).strip("-") or "product"
 
 
-class DLShopItem(WebsiteGenerator):
-    website = frappe._dict(
-        page_title_field="web_item_name_en",
-        condition_field="is_published",
-        template="dlshop/templates/pages/product_detail.html",
-        route_field="route",
-    )
+class DLShopItem(Document):
 
     def before_save(self):
         if not self.route:
@@ -27,10 +21,10 @@ class DLShopItem(WebsiteGenerator):
         frappe.clear_cache(doctype="DL Shop Item")
 
     def get_context(self, context):
-        """Called when this item's web page is rendered."""
+        """Called from www/product.py when rendering a product page."""
         from dlshop.utils import get_settings, get_item_price, get_item_stock, get_item_variants, get_virtual_stock_remaining
-
         from dlshop.utils import get_current_lang
+
         settings = get_settings()
         lang = get_current_lang()
         frappe.local.lang = lang
@@ -87,7 +81,7 @@ class DLShopItem(WebsiteGenerator):
             limit=6,
         )
 
-        # Increment view count atomically — avoids stale self.view_count from cached doc
+        # Increment view count atomically
         frappe.db.sql(
             "UPDATE `tabDL Shop Item` SET view_count = COALESCE(view_count, 0) + 1 WHERE name = %s",
             self.name,
@@ -100,3 +94,5 @@ class DLShopItem(WebsiteGenerator):
         )
         context.title = context.meta_title or context.item_name
         context.no_cache = 1
+        # Required so the product_detail.html template can access context.item_name etc.
+        context.context = context

@@ -8,11 +8,6 @@ app_icon_url = "/assets/dlshop/images/logo.svg"
 app_icon_title = "Dlits Shop"
 app_icon_route = "/desk/dl-shop"
 
-# Website Generators
-# ------------------
-# Auto-creates a page for each DL Shop Item record using its 'route' field
-website_generators = ["DL Shop Item"]
-
 # Apps Screen
 add_to_apps_screen = [
     {

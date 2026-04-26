@@ -70,7 +70,8 @@
  "owner": "Administrator",
  "permissions": [
   {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
-  {"role": "Website Manager", "read": 1, "write": 1, "create": 1}
+  {"role": "Website Manager", "read": 1, "write": 1, "create": 1},
+  {"role": "Guest", "read": 1}
  ],
  "sort_field": "sort_order",
  "sort_order": "ASC",

@@ -25,6 +25,8 @@
   "is_new_arrival",
   "column_break_b9",
   "is_on_sale",
+  "column_break_b9b",
+  "is_flash_deal",
   "section_break_b10",
   "sort_order",
   "column_break_b11",
@@ -179,6 +181,15 @@
    "fieldname": "is_on_sale",
    "fieldtype": "Check",
    "label": "On Sale"
+  },
+  {
+   "fieldname": "column_break_b9b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_flash_deal",
+   "fieldtype": "Check",
+   "label": "Flash Deal"
   },
   {
    "fieldname": "section_break_b10",
@@ -430,7 +441,7 @@
    "precision": "1"
   }
  ],
- "has_web_view": 1,
+ "has_web_view": 0,
  "allow_guest_to_view": 1,
  "modified": "2024-01-01 00:00:00.000000",
  "modified_by": "Administrator",
