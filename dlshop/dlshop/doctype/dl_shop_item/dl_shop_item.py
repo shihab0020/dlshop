@@ -16,9 +16,40 @@ class DLShopItem(Document):
         if not self.route:
             self.route = _slugify(self.web_item_name_en)
         self.route = _slugify(self.route)
+        # Always mirror item_group and brand from ERPNext — prevents manual drift
+        if self.item_code:
+            item = frappe.db.get_value(
+                "Item", self.item_code, ["item_group", "brand"], as_dict=True
+            )
+            if item:
+                self.item_group = item.item_group
+                self.brand = item.brand or ""
 
     def on_update(self):
         frappe.clear_cache(doctype="DL Shop Item")
+
+
+def sync_item_from_erpnext(doc, method=None):
+    """Triggered when an ERPNext Item is saved — keeps DL Shop Item in sync."""
+    dl_item_name = frappe.db.get_value(
+        "DL Shop Item", {"item_code": doc.name}, "name"
+    )
+    if not dl_item_name:
+        return
+    current = frappe.db.get_value(
+        "DL Shop Item", dl_item_name, ["item_group", "brand"], as_dict=True
+    )
+    new_group = doc.item_group
+    new_brand = doc.brand or ""
+    if current.item_group == new_group and (current.brand or "") == new_brand:
+        return
+    frappe.db.set_value(
+        "DL Shop Item",
+        dl_item_name,
+        {"item_group": new_group, "brand": new_brand},
+        update_modified=False,
+    )
+    frappe.clear_cache(doctype="DL Shop Item")
 
     def get_context(self, context):
         """Called from www/product.py when rendering a product page."""

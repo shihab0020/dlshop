@@ -46,6 +46,10 @@ doc_events = {
     "Sales Order": {
         "on_submit": "dlshop.api.cart.on_sales_order_submit",
     },
+    "Item": {
+        # Keep DL Shop Item's item_group and brand in sync with ERPNext
+        "on_update": "dlshop.dlshop.doctype.dl_shop_item.dl_shop_item.sync_item_from_erpnext",
+    },
 }
 
 # Scheduled Tasks

@@ -132,6 +132,8 @@
    "fieldtype": "Link",
    "label": "Item Group",
    "options": "Item Group",
+   "fetch_from": "item_code.item_group",
+   "read_only": 1,
    "in_list_view": 1
   },
   {
@@ -142,7 +144,9 @@
    "fieldname": "brand",
    "fieldtype": "Link",
    "label": "Brand",
-   "options": "Brand"
+   "options": "Brand",
+   "fetch_from": "item_code.brand",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_b6",
