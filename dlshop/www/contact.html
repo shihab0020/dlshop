@@ -3,38 +3,333 @@
 {% block title %}{{ 'تواصل معنا' if _lang == 'ar' else 'Contact Us' }} | {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}{% endblock %}
 
 {% block page_content %}
-<div class="container py-5" style="max-width:720px;">
-  <h1 class="fw-bold mb-2">{{ 'تواصل معنا' if _lang == 'ar' else 'Contact Us' }}</h1>
-  <p class="text-muted mb-5">{{ 'نسعد بتواصلكم — أرسل لنا رسالة وسنرد في أقرب وقت.' if _lang == 'ar' else 'We\'d love to hear from you — send us a message and we\'ll get back to you shortly.' }}</p>
+<style>
+/* ── Contact page scoped styles ──────────────────────────── */
+.dlc-bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, rgba(46,48,146,.04) 0%, transparent 70%);
+}
+.dlc-float-icon {
+  position: absolute; color: rgba(46,48,146,.055);
+  animation: dlcFloat 18s infinite linear;
+}
+@keyframes dlcFloat {
+  0%   { transform: translateY(100vh) rotate(0deg);   opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translateY(-12vh) rotate(360deg); opacity: 0; }
+}
 
-  <form id="dl-contact-form">
-    <div class="mb-3">
-      <label class="form-label fw-semibold">{{ 'الاسم' if _lang == 'ar' else 'Name' }}</label>
-      <input type="text" class="form-control" name="full_name" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label fw-semibold">{{ 'البريد الإلكتروني' if _lang == 'ar' else 'Email' }}</label>
-      <input type="email" class="form-control" name="email" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label fw-semibold">{{ 'الرسالة' if _lang == 'ar' else 'Message' }}</label>
-      <textarea class="form-control" name="message" rows="5" required></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary px-4">
-      {{ 'إرسال' if _lang == 'ar' else 'Send Message' }}
-    </button>
-    <div id="dl-contact-success" class="alert alert-success mt-3 d-none">
-      {{ 'تم إرسال رسالتك بنجاح، شكرًا لتواصلك معنا!' if _lang == 'ar' else 'Your message has been sent. Thank you for reaching out!' }}
-    </div>
-  </form>
+/* Header */
+.dlc-header { text-align: center; padding: 56px 20px 8px; }
+.dlc-header h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900; color: var(--dl-primary); margin: 0;
+}
+.dlc-header p { color: #666; font-size: 1.1rem; margin-top: 8px; }
+
+/* Tabs */
+.dlc-tabs {
+  display: flex; justify-content: center; gap: 14px;
+  margin: 32px auto 0; flex-wrap: wrap; padding: 0 16px;
+}
+.dlc-tab {
+  padding: 12px 36px; border: 2px solid #e0e0e0;
+  background: #fff; border-radius: 40px; cursor: pointer;
+  font-weight: 700; color: #555; font-size: .95rem;
+  transition: all .25s; white-space: nowrap;
+}
+.dlc-tab.active {
+  background: var(--dl-primary); color: #fff;
+  border-color: var(--dl-primary);
+  box-shadow: 0 8px 20px rgba(46,48,146,.22);
+}
+.dlc-tab:hover:not(.active) { border-color: var(--dl-secondary); color: var(--dl-secondary); }
+
+/* Panels */
+.dlc-panel {
+  display: none; max-width: 1080px; margin: 44px auto 0;
+  padding: 0 16px;
+  animation: dlcFadeIn .4s ease;
+}
+.dlc-panel.active { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+@keyframes dlcFadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* Contact Cards */
+.dlc-card {
+  background: #fff; border: 1px solid #eee;
+  border-radius: 22px; padding: 26px 28px;
+  width: 440px; max-width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.04);
+  transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+.dlc-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--dl-secondary);
+  box-shadow: 0 10px 28px rgba(0,174,239,.1);
+}
+.dlc-card-icon {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; color: #fff;
+  background: linear-gradient(135deg, var(--dl-primary), var(--dl-secondary));
+}
+.dlc-card-body { flex: 1; min-width: 0; }
+.dlc-card-body h3 { margin: 0 0 4px; font-size: 1rem; font-weight: 700; color: #222; }
+.dlc-card-body span { font-size: .95rem; color: var(--dl-secondary); font-weight: 600; }
+.dlc-card-body .dlc-address {
+  font-size: .82rem; color: #888; margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dlc-btns { display: flex; gap: 8px; flex-shrink: 0; }
+.dlc-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none; color: #fff;
+  font-size: .95rem; transition: transform .2s, box-shadow .2s;
+}
+.dlc-btn:hover { transform: scale(1.12); box-shadow: 0 4px 12px rgba(0,0,0,.18); color: #fff; }
+.dlc-btn-call { background: var(--dl-primary); }
+.dlc-btn-wa   { background: #25d366; }
+.dlc-btn-map  { background: #ea4335; }
+
+/* Divider label */
+.dlc-section-label {
+  width: 100%; text-align: center; font-size: .7rem;
+  font-weight: 800; letter-spacing: 2px; color: #bbb;
+  text-transform: uppercase; margin: 4px 0 -8px;
+}
+
+/* Social bar */
+.dlc-social {
+  margin-top: 64px; background: #f8faff;
+  border-top: 1px solid #eef; padding: 44px 20px 36px;
+  text-align: center;
+}
+.dlc-social p.dlc-follow {
+  font-size: .72rem; font-weight: 800; letter-spacing: 3px;
+  color: #aaa; text-transform: uppercase; margin: 0 0 20px;
+}
+.dlc-social-icons { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.dlc-soc-circle {
+  width: 56px; height: 56px; background: #fff; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.35rem; color: #444; text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,.07);
+  transition: transform .35s, background .35s, color .35s;
+}
+.dlc-soc-circle:hover {
+  transform: rotate(360deg) scale(1.1);
+  background: var(--dl-primary); color: #fff;
+}
+.dlc-copyright { margin-top: 32px; font-size: .8rem; color: #bbb; }
+
+/* RTL tweaks */
+[dir="rtl"] .dlc-card { flex-direction: row-reverse; }
+[dir="rtl"] .dlc-btns  { flex-direction: row-reverse; }
+
+@media (max-width: 600px) {
+  .dlc-card { width: 100%; padding: 20px; }
+  .dlc-tab  { padding: 10px 22px; font-size: .85rem; }
+}
+</style>
+
+{# ── Floating tech-icon background ── #}
+<div class="dlc-bg" id="dlcBg"></div>
+
+{# ── Page header ── #}
+<div class="dlc-header">
+  <h1>{{ 'تواصل معنا' if _lang == 'ar' else 'Contact Us' }}</h1>
+  <p>{{ 'كيف يمكننا مساعدتك اليوم؟' if _lang == 'ar' else 'How can we help you today?' }}</p>
 </div>
 
+{# ── Tabs ── #}
+<div class="dlc-tabs">
+  <button class="dlc-tab active" onclick="dlcTab(event,'dlc-support')">
+    <i class="fa fa-headset me-2"></i>{{ 'الدعم الفني' if _lang == 'ar' else 'Technical Support' }}
+  </button>
+  <button class="dlc-tab" onclick="dlcTab(event,'dlc-showrooms')">
+    <i class="fa fa-store me-2"></i>{{ 'فروعنا' if _lang == 'ar' else 'Our Showrooms' }}
+  </button>
+</div>
+
+{# ════════════════════════════════════════
+   PANEL 1 — Technical Support
+   ════════════════════════════════════════ #}
+<div id="dlc-support" class="dlc-panel active">
+
+  <div class="dlc-card">
+    <div class="dlc-card-icon"><i class="fa fa-headset"></i></div>
+    <div class="dlc-card-body">
+      <h3>{{ 'الدعم الأساسي' if _lang == 'ar' else 'Primary Support' }}</h3>
+      <span>{% if _settings.support_phone %}{{ _settings.support_phone }}{% else %}+966 55 402 9167{% endif %}</span>
+    </div>
+    <div class="dlc-btns">
+      <a href="tel:{% if _settings.support_phone %}{{ _settings.support_phone | replace(' ','') }}{% else %}+966554029167{% endif %}"
+         class="dlc-btn dlc-btn-call" title="{{ 'اتصل' if _lang == 'ar' else 'Call' }}">
+        <i class="fa fa-phone"></i>
+      </a>
+      <a href="https://wa.me/{% if _settings.whatsapp_number %}{{ _settings.whatsapp_number | replace('+','') | replace(' ','') }}{% else %}966554029167{% endif %}"
+         target="_blank" class="dlc-btn dlc-btn-wa" title="WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="dlc-card">
+    <div class="dlc-card-icon"><i class="fa fa-screwdriver-wrench"></i></div>
+    <div class="dlc-card-body">
+      <h3>{{ 'العمليات التقنية' if _lang == 'ar' else 'Technical Operations' }}</h3>
+      <span>+966 55 331 0381</span>
+    </div>
+    <div class="dlc-btns">
+      <a href="tel:+966553310381" class="dlc-btn dlc-btn-call" title="{{ 'اتصل' if _lang == 'ar' else 'Call' }}">
+        <i class="fa fa-phone"></i>
+      </a>
+      <a href="https://wa.me/966553310381" target="_blank" class="dlc-btn dlc-btn-wa" title="WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
+  </div>
+
+  {% if _settings.support_email %}
+  <div class="dlc-card">
+    <div class="dlc-card-icon"><i class="fa fa-envelope"></i></div>
+    <div class="dlc-card-body">
+      <h3>{{ 'البريد الإلكتروني' if _lang == 'ar' else 'Email Support' }}</h3>
+      <span>{{ _settings.support_email }}</span>
+    </div>
+    <div class="dlc-btns">
+      <a href="mailto:{{ _settings.support_email }}" class="dlc-btn dlc-btn-call" title="{{ 'مراسلة' if _lang == 'ar' else 'Email' }}">
+        <i class="fa fa-envelope"></i>
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+{# ════════════════════════════════════════
+   PANEL 2 — Showrooms
+   ════════════════════════════════════════ #}
+<div id="dlc-showrooms" class="dlc-panel">
+
+  <div class="dlc-card">
+    <div class="dlc-card-icon"><i class="fa fa-building"></i></div>
+    <div class="dlc-card-body">
+      <h3>{{ 'الفرع الرئيسي' if _lang == 'ar' else 'Main Branch' }}</h3>
+      <span>+966 55 660 1442</span>
+      {% if _settings.address_en or _settings.address_ar %}
+      <div class="dlc-address">{{ _settings.address_ar if _lang == 'ar' else _settings.address_en }}</div>
+      {% endif %}
+    </div>
+    <div class="dlc-btns">
+      <a href="https://maps.google.com/?q={{ (_settings.address_en or 'DLITS+Saudi+Arabia') | urlencode }}"
+         target="_blank" class="dlc-btn dlc-btn-map" title="{{ 'الخريطة' if _lang == 'ar' else 'Map' }}">
+        <i class="fa fa-location-dot"></i>
+      </a>
+      <a href="tel:+966556601442" class="dlc-btn dlc-btn-call" title="{{ 'اتصل' if _lang == 'ar' else 'Call' }}">
+        <i class="fa fa-phone"></i>
+      </a>
+      <a href="https://wa.me/966556601442" target="_blank" class="dlc-btn dlc-btn-wa" title="WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="dlc-card">
+    <div class="dlc-card-icon" style="background:linear-gradient(135deg,#6a3093,#a044ff);">
+      <i class="fa fa-building"></i>
+    </div>
+    <div class="dlc-card-body">
+      <h3>{{ 'الفرع الثاني' if _lang == 'ar' else 'Branch 02' }}</h3>
+      <span>+966 55 331 0261</span>
+    </div>
+    <div class="dlc-btns">
+      <a href="https://maps.google.com/?q=DLITS+Branch+2+Saudi+Arabia"
+         target="_blank" class="dlc-btn dlc-btn-map" title="{{ 'الخريطة' if _lang == 'ar' else 'Map' }}">
+        <i class="fa fa-location-dot"></i>
+      </a>
+      <a href="tel:+966553310261" class="dlc-btn dlc-btn-call" title="{{ 'اتصل' if _lang == 'ar' else 'Call' }}">
+        <i class="fa fa-phone"></i>
+      </a>
+      <a href="https://wa.me/966553310261" target="_blank" class="dlc-btn dlc-btn-wa" title="WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+{# ── Social bar ── #}
+<div class="dlc-social">
+  <p class="dlc-follow">{{ 'تابعونا على' if _lang == 'ar' else 'Follow DLITS Online' }}</p>
+  <div class="dlc-social-icons">
+    {% if _settings.instagram_url %}
+    <a href="{{ _settings.instagram_url }}" target="_blank" class="dlc-soc-circle" aria-label="Instagram">
+      <i class="fab fa-instagram"></i>
+    </a>
+    {% endif %}
+    {% if _settings.snapchat_url %}
+    <a href="{{ _settings.snapchat_url }}" target="_blank" class="dlc-soc-circle" aria-label="Snapchat">
+      <i class="fab fa-snapchat"></i>
+    </a>
+    {% endif %}
+    {% if _settings.tiktok_url %}
+    <a href="{{ _settings.tiktok_url }}" target="_blank" class="dlc-soc-circle" aria-label="TikTok">
+      <i class="fab fa-tiktok"></i>
+    </a>
+    {% endif %}
+    {% if _settings.facebook_url %}
+    <a href="{{ _settings.facebook_url }}" target="_blank" class="dlc-soc-circle" aria-label="Facebook">
+      <i class="fab fa-facebook-f"></i>
+    </a>
+    {% endif %}
+    {% if _settings.twitter_url %}
+    <a href="{{ _settings.twitter_url }}" target="_blank" class="dlc-soc-circle" aria-label="X / Twitter">
+      <i class="fab fa-x-twitter"></i>
+    </a>
+    {% endif %}
+    {% if _settings.youtube_url %}
+    <a href="{{ _settings.youtube_url }}" target="_blank" class="dlc-soc-circle" aria-label="YouTube">
+      <i class="fab fa-youtube"></i>
+    </a>
+    {% endif %}
+  </div>
+  <p class="dlc-copyright">
+    &copy; {{ frappe.utils.now_datetime().year }} {{ _settings.site_name_ar if _lang == 'ar' else _settings.site_name_en }}.
+    {{ 'جميع الحقوق محفوظة.' if _lang == 'ar' else 'All Rights Reserved.' }}
+  </p>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
 <script>
-document.getElementById('dl-contact-form').addEventListener('submit', function(e) {
-  e.preventDefault();
-  // Placeholder: wire to frappe.call or your preferred contact handler
-  document.getElementById('dl-contact-success').classList.remove('d-none');
-  this.reset();
-});
+(function () {
+  /* ── Tab switcher ── */
+  window.dlcTab = function (e, id) {
+    document.querySelectorAll('.dlc-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.dlc-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    e.currentTarget.classList.add('active');
+  };
+
+  /* ── Floating tech icons ── */
+  var bg = document.getElementById('dlcBg');
+  if (bg) {
+    var icons = ['fa-microchip','fa-network-wired','fa-server','fa-gear','fa-shield-halved','fa-wifi','fa-camera','fa-lock'];
+    for (var i = 0; i < 22; i++) {
+      var el = document.createElement('i');
+      el.className = 'fas ' + icons[i % icons.length] + ' dlc-float-icon';
+      el.style.left   = (Math.random() * 100) + 'vw';
+      el.style.fontSize = (Math.random() * 28 + 12) + 'px';
+      el.style.animationDuration = (Math.random() * 12 + 12) + 's';
+      el.style.animationDelay   = (Math.random() * 10) + 's';
+      bg.appendChild(el);
+    }
+  }
+})();
 </script>
 {% endblock %}

@@ -1,5 +1,5 @@
 import frappe
-from dlshop.utils import get_current_lang
+from dlshop.utils import get_current_lang, get_settings
 
 
 def get_context(context):
@@ -7,3 +7,4 @@ def get_context(context):
     frappe.local.lang = lang
     context.no_cache = 1
     context.body_class = "dl-shop rtl" if lang == "ar" else "dl-shop"
+    context.shop_settings = get_settings()
